@@ -1,7 +1,7 @@
 import discord
 
 import GetToken
-import Imbly as cImbly
+import CommandImplying as cImplying
 import LogTools as LT
 import Constants as C
 
@@ -21,7 +21,7 @@ async def processCommand(cmdMain, cmdArgs, message):
         # 'reminder': cReminder,
         # 'roll': cRoll,
         # 'shitpost': cShitpost,
-        'implying': cImbly
+        'implying': cImplying
     }
     f = switch.get(cmdMain, lambda: 'None')
     if f != 'None':

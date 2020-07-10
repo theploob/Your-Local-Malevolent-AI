@@ -1,2 +1,0 @@
-Started log at 07/09 22:05:48
-07/09 22:05:48   Initialization complete

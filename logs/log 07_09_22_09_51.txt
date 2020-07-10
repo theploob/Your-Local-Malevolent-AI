@@ -1,4 +1,0 @@
-Started log at 07/09 22:09:51
-07/09 22:09:51   Initialization complete
-07/09 22:09:57   Ploob(263515295019171861) gave command implying
-07/09 22:10:51   Ploob(263515295019171861) gave command imbly
