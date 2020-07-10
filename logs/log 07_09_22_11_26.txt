@@ -1,0 +1,4 @@
+Started log at 07/09 22:11:26
+07/09 22:11:26   Initialization complete
+07/09 22:11:31   Ploob(263515295019171861) gave command imbly
+07/09 22:11:31   Your Local Malevolent AI(730947466983374900) gave command >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>IMBLYING

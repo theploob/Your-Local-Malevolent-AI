@@ -1,0 +1,3 @@
+Started log at 07/09 22:07:28
+07/09 22:07:28   Initialization complete
+07/09 22:07:33   Ploob(263515295019171861) gave command imbly

@@ -1,0 +1,6 @@
+chat timeout/ban for a certain time
+reminder function
+tags - create a tag for something, that thing gets remembered and brought back up when the tag is called
+die roller
+daily shitposts - randomly generated sentance, top psots from a list of subreddits, 4chan post, 
+grabbing league patch notes automatically??? possibly from twitter, 
