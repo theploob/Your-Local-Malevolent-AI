@@ -2,6 +2,7 @@ import discord
 
 import GetToken
 import CommandImplying as cImplying
+import CommandRoll as cRoll
 import LogTools as LT
 import Constants as C
 
@@ -19,7 +20,7 @@ async def processCommand(cmdMain, cmdArgs, message):
         # 'tag': cTag,
         # 'timeout': cTimeout,
         # 'reminder': cReminder,
-        # 'roll': cRoll,
+        'roll': cRoll,
         # 'shitpost': cShitpost,
         'implying': cImplying
     }
@@ -42,6 +43,7 @@ async def on_ready():
         await client.logout()
     else:
         LT.Log('Initialization complete', logtag)
+
 
 @client.event
 async def on_message(message):
