@@ -5,6 +5,7 @@ import CommandImplying as cImplying
 import CommandRoll as cRoll
 import LogTools as LT
 import Constants as C
+import Debug
 
 client = discord.Client()
 
@@ -44,6 +45,7 @@ async def on_ready():
     else:
         LT.Log('Initialization complete', logtag)
 
+    
 
 @client.event
 async def on_message(message):

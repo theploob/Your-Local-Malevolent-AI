@@ -38,9 +38,6 @@ allowable_characters = {
     'l' # Not used alone, must be with k,<,>
     # multi character inputs: kl, <=, >=
 }
-int_chars = {
-    '0','1','2','3','4','5','6','7','8','9'
-}
 
 # Returns op code # of the given operation token
 def getOpCode(token):
@@ -60,6 +57,17 @@ def getOpCode(token):
     }
     
     return ops.get(token, -1)
+
+# Turns the given array of string operators into numeric, generic ones
+def tokenArrayToOpArray(tokenArray):
+    toksOps = []
+    for t in tokenArray:
+        opCode = getOpCode(t)
+        if opCode != -1:
+            toksOps.append(opCode)
+        else:
+            return None
+    return toksOps
 
 # Returns boolean if the given string is of a number
 def isNumStr(instr):
@@ -120,22 +128,50 @@ def createTokenArray(tokenString):
     return tArray
     
 # Returns true on correct grammar, false otherwise
-def checkGrammar(tokenArray):
+def checkGrammar(tokenOps):
+    # Have toksOps array, ensure no unusable statements occur
+    # OP_INT = 0
+    # OP_ADD = 1
+    # OP_MULT = 2
+    # OP_DIE = 3
+    # OP_KEEP = 4
+    # OP_CONDITION = 5
+    # OP_EXP = 6
+    # OP_STPAR = 7
+    # OP_ENPAR = 8
+    # OP_BRIEF = 9
+    stparen = 0
+    enparen = 0
+    # TODO finish grammar checker, find more break cases
+    for n,t in enumerate(tokenOps): # Turn into function array switch
+        if t == OP_STPAR:
+            stparen += 1
+        elif t == OP_ENPAR:
+            enparen += 1
+        elif n == 0: # Things that can't start a statement
+            if t in [OP_ADD, OP_MULT, OP_KEEP, OP_CONDITION, OP_EXP, OP_ENPAR]:
+                return False
+        elif n == len(tokenOps)-1: # Things that can't end a statement
+            if t in [OP_ADD, OP_MULT, OP_DIE, OP_CONDITION, OP_STPAR]:
+                return False
 
-    toks = tokenArray.copy() # Array of tokens to be checked
-    toksOps = [] # Array of the op codes of the toks        
+    if stparen != enparen: # Unequal parenthesis
+        return False
     
-    # Create the toksOps array for easier logic parsing
-    for t in toks:
-        opCode = getOpCode(t)
-        if opCode != -1:
-            toksOps.append(opCode)
-        else:
-            return False
+    return True
+    
+def parseRoll(inTokenArray, inTokenOps):
+    tokenOps = inTokenOps.copy()
+    tokenArray = inTokenArray.copy()
+    
+    briefText = False
+    while OP_BRIEF in tokenOps: # Get brief flag, remove otherwise since it doesn't affect the rest of the expression
+        briefText = True
+        tokenOps.remove(OP_BRIEF)
+        tokenArray.remove('b')
 
     
-    
-    
+
 async def entry(cmdArgs, message):
     if cmdArgs == []:
         return
@@ -144,8 +180,13 @@ async def entry(cmdArgs, message):
     tokenArray = createTokenArray(tokenString)
     if tokenArray == None:
         return # Error found in createTokenArray TODO
-    if checkGrammar(tokenArray) == False: # Go back to school
+    tokenOps = tokenArrayToOpArray(tokenArray)
+    if tokenOps == None:
         return
+    if checkGrammar(tokenOps) == False: # Go back to school
+        return
+    parseRoll(tokenArray, tokenOps)
+    
 
     
     
