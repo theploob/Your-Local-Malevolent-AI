@@ -1,3 +1,5 @@
+
+
 # ADD_OP       + -
 # MULT_OP      * /
 # DIE_OP       d
@@ -75,9 +77,25 @@ def createTokenArray(tokenString):
             
     return tArray
     
+def parseGrammar(tokenArray):
+    toks = tokenArray.copy()
+    booleanBrief = False
+    
+    # Remove all 'brief' tags, since any number cause brief output
+    if 'b' in toks:
+        booleanBrief = True
+        while 'b' in toks:
+            toks.remove('b')
+        
+    
+    # Process each token in the tokenArray
+    for t in toks:
+        code
     
 
-
+    
+    
+    
 async def entry(cmdArgs, message):
     if cmdArgs == []:
         return
@@ -85,7 +103,9 @@ async def entry(cmdArgs, message):
     tokenString = ''.join(cmdArgs) # Rejoin args, no spaces left between parts
     tokenArray = createTokenArray(tokenString)
     if tokenArray == None:
-        return # Error found in createTokenArray
+        return # Error found in createTokenArray TODO
+    else:
+        parseAndRoll(tokenArray)
     
     
     
