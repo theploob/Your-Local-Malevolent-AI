@@ -10,6 +10,29 @@
 # START_PAREN  (
 # END_PAREN    )
 # INT          you know this one
+OP_INT = 0
+OP_ADD = 1
+OP_MULT = 2
+OP_DIE = 3
+OP_KEEP = 4
+OP_CONDITION = 5
+OP_EXP = 6
+OP_STPAR = 7
+OP_ENPAR = 8
+OP_BRIEF = 9
+operators = {                               # OP Code:
+    'ADD':       ['+','-'],                 # 1
+    'MULT':      ['*','/'],                 # 2
+    'DIE':       ['d'],                     # 3
+    'KEEP':      ['k','kl'],                # 4
+    'CONDITION': ['<','>','<=','>=','='],   # 5
+    'EXP':       ['!'],                     # 6
+    'STPAR':     ['('],                     # 7
+    'ENPAR':     [')'],                     # 8
+    'BRIEF':     ['b']                      # 9
+    # 'INT':       [0,1,2,...]              # 0
+}
+
 allowable_characters = {
     '+','-','*','/','d','k','b','<','>','!','(',')','=',
     'l' # Not used alone, must be with k,<,>
@@ -18,6 +41,25 @@ allowable_characters = {
 int_chars = {
     '0','1','2','3','4','5','6','7','8','9'
 }
+
+# Returns op code # of the given operation token
+def getOpCode(token):
+    if isNumStr(token):
+        return 0
+
+    ops = {
+        '+': 1,'-': 1,
+        '*': 2, '/': 2,
+        'd': 3,
+        'k': 4, 'kl': 4,
+        '<': 5, '>': 5, '<=': 5, '>=': 5, '=': 5,
+        '!': 6,
+        '(': 7,
+        ')': 8,
+        'b': 9
+    }
+    
+    return ops.get(token, -1)
 
 # Returns boolean if the given string is of a number
 def isNumStr(instr):
@@ -77,21 +119,19 @@ def createTokenArray(tokenString):
             
     return tArray
     
-def parseGrammar(tokenArray):
-    toks = tokenArray.copy()
-    booleanBrief = False
+# Returns true on correct grammar, false otherwise
+def checkGrammar(tokenArray):
+
+    toks = tokenArray.copy() # Array of tokens to be checked
+    toksOps = [] # Array of the op codes of the toks        
     
-    # Remove all 'brief' tags, since any number cause brief output
-    if 'b' in toks:
-        booleanBrief = True
-        while 'b' in toks:
-            toks.remove('b')
-        
-    
-    # Process each token in the tokenArray
+    # Create the toksOps array for easier logic parsing
     for t in toks:
-        code
-    
+        opCode = getOpCode(t)
+        if opCode != -1:
+            toksOps.append(opCode)
+        else:
+            return False
 
     
     
@@ -104,8 +144,9 @@ async def entry(cmdArgs, message):
     tokenArray = createTokenArray(tokenString)
     if tokenArray == None:
         return # Error found in createTokenArray TODO
-    else:
-        parseAndRoll(tokenArray)
+    if checkGrammar(tokenArray) == False: # Go back to school
+        return
+
     
     
     
