@@ -44,7 +44,7 @@ async def on_ready():
         await client.logout()
     else:
         LT.Log('Initialization complete', logtag)
-
+    Debug.debug()
     
 
 @client.event

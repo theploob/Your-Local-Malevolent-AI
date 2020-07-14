@@ -43,7 +43,6 @@ allowable_characters = {
 def getOpCode(token):
     if isNumStr(token):
         return 0
-
     ops = {
         '+': 1,'-': 1,
         '*': 2, '/': 2,
@@ -55,7 +54,6 @@ def getOpCode(token):
         ')': 8,
         'b': 9
     }
-    
     return ops.get(token, -1)
 
 # Turns the given array of string operators into numeric, generic ones
@@ -170,6 +168,7 @@ def parseRoll(inTokenArray, inTokenOps):
         tokenOps.remove(OP_BRIEF)
         tokenArray.remove('b')
 
+    
     
 
 async def entry(cmdArgs, message):
