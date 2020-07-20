@@ -46,9 +46,7 @@ async def on_ready():
         LT.Log('Error in beginning initialization, stopping server', logtag)
         await client.logout()
     else:
-        LT.Log('Initialization complete', logtag)
-    Debug.debug()
-    
+        LT.Log('Initialization complete', logtag)    
 
 @client.event
 async def on_message(message):
