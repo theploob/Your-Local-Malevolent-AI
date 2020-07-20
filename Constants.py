@@ -1,7 +1,7 @@
 commandList = {
     'tag',
     'timeout',
-    'reminder',
+    'remind',
     'roll',
     'shitpost',
     'implying'

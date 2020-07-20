@@ -1,6 +1,12 @@
 chat timeout/ban for a certain time
 reminder function
+    reminds after given time:>remind [time] [message] or >remind date [date] [time] [message] or >remind time [time] [message]
+    time tag needs clock time, date needs date + clock, normals just needs raw time to wait (hours, minutes)
+    
+    Format: Calculate the date/time/etc to trigger the alert, store it
+    check every minute or so
+    
 tags - create a tag for something, that thing gets remembered and brought back up when the tag is called
 die roller
-daily shitposts - randomly generated sentance, top psots from a list of subreddits, 4chan post, 
+daily shitposts - randomly generated sentence, top psots from a list of subreddits, 4chan post, 
 grabbing league patch notes automatically??? possibly from twitter, 

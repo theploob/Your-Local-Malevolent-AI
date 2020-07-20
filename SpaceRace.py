@@ -1,10 +1,13 @@
 import discord
 
 import GetToken
-import CommandImplying as cImplying
+import CommandRemind as cRemind
 import CommandRoll as cRoll
+import CommandImplying as cImplying
+
 import LogTools as LT
 import Constants as C
+import SQLiteInterface as SQI
 import Debug
 
 client = discord.Client()
@@ -20,7 +23,7 @@ async def processCommand(cmdMain, cmdArgs, message):
     switch = {
         # 'tag': cTag,
         # 'timeout': cTimeout,
-        # 'reminder': cReminder,
+        'remind': cRemind,
         'roll': cRoll,
         # 'shitpost': cShitpost,
         'implying': cImplying
@@ -33,7 +36,7 @@ async def processCommand(cmdMain, cmdArgs, message):
 # Initial setup function for SQL, etc.
 def init():
     err = False
-    
+    err |= SQI.Initialize()
     return err
 
 @client.event
