@@ -2,7 +2,9 @@ import CommandRoll
 
 tokenArray = []
 tokenOps = []
-
+parseStack = []
+unparsedOps = []
+unparsedArray = []
 OP_INT = 0
 OP_ADD = 1
 OP_MULT = 2
@@ -16,23 +18,28 @@ OP_BRIEF = 9
 
 def debug():
     tstr = '2d20+3kl1'
+    global tokenArray
+    global tokenOps
     tokenArray = CommandRoll.createTokenArray(tstr)
     if tokenArray == None:
         print('Error in create token array')
-    tokenOps = tokenArrayToOpArray(tokenArray)
+    tokenOps = CommandRoll.tokenArrayToOpArray(tokenArray)
     if tokenOps == None:
         print('Error in token to op array')
-    if checkGrammar(tokenOps) == False: # Go back to school
+    if CommandRoll.checkGrammar(tokenOps) == False: # Go back to school
         print('Bad grammar')
         
     # tokenArray
     # tokenOps
     
-# Recursive processing
-# given total tokenArray, total tokenOps make global?
-# current set of tokens to process
-def process(curSet):
-	for n,op in enumerate(curSet):
-		if op == OP_STPAR:
-            while (curSet[index] != OP_ENPAR) and (curSet[index] != OP_STPAR): # Get position of
-                index += 1
+def lrParse():
+    global parseStack
+    global unparsedOps
+    global unparsedArray
+    parseStack = []
+    unparsedOps = tokenOps.copy() # Remaining operator types, non-explicit
+    unparsedArray = tokenArray.copy() # Remaining array, carries the explicit commands
+    
+    
+
+

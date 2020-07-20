@@ -140,12 +140,17 @@ def checkGrammar(tokenOps):
     # OP_BRIEF = 9
     stparen = 0
     enparen = 0
+    parencount = 0
     # TODO finish grammar checker, find more break cases
     for n,t in enumerate(tokenOps): # Turn into function array switch
         if t == OP_STPAR:
             stparen += 1
+            parencount += 1
         elif t == OP_ENPAR:
             enparen += 1
+            parencount -= 1
+            if parencount < 0: # Too many closing parens
+                return False
         elif n == 0: # Things that can't start a statement
             if t in [OP_ADD, OP_MULT, OP_KEEP, OP_CONDITION, OP_EXP, OP_ENPAR]:
                 return False
