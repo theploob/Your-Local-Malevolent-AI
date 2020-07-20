@@ -46,7 +46,7 @@ def reminderExists(userId):
         c.execute(''' SELECT count(name) FROM reminders WHERE userid=? ''', [userId])
         return c.fetchone()[0] > 0
     except Exception:
-        LT.Log('Error with reminderExists(' + str(userId) + ')')
+        LT.Log('Error with reminderExists(' + str(userId) + ')', logtag)
         return False
 
 
