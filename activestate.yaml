@@ -1,0 +1,33 @@
+project: https://platform.activestate.com/Ploob/komodo-SpaceRaceBot?commitID=80df824c-7abb-474e-81f0-f7da1c9dae81
+
+languages: # Please run 'state push' to create your language runtime, once you do the language entry here will be removed
+  - name: python3
+    version: 
+private: false
+
+scripts:
+  - name: helloWorld
+    constraints:
+      os: macos,linux
+    value: echo "Hello World!"
+  - name: helloWorld
+    constraints:
+      os: windows
+    value: echo Hello World!
+  - name: intro
+    constraints:
+      os: macos,linux
+    value: |
+      echo "Your runtime environment is now ready!"
+      echo ""
+      echo "To see how scripts work and add your own, open up the activestate.yaml file with your editor."
+  - name: intro
+    constraints:
+      os: windows
+    value: |
+      echo Your runtime environment is now ready!
+      echo.
+      echo To see how scripts work and add your own, open up the activestate.yaml file with your editor.
+events:
+  - name: ACTIVATE
+    value: $scripts.intro

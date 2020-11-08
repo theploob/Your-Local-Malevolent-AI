@@ -16,19 +16,21 @@ async def entry(cmdArgs, message):
             return
         dateArg = cmdArgs[1]
         clocktimeArg = cmdArgs[2]
-        await remindDate(dateArg, clocktimeArg, ' '.join(cmdArgs[3:]), message)
+        #await remindDate(dateArg, clocktimeArg, ' '.join(cmdArgs[3:]), message)
+        await createReminder('date', dateArg, clocktimeArg, ' '.join(cmdArgs[3:]), message)
 
     # time [clock time]
     elif cmdArgs[0] == 'time':
         if len(cmdArgs) < 3:
             await message.channel.send('''Invalid format. Use "remind time [hh:mm] [reminder text]"''')
         clocktimeArg = cmdArgs[1]
-        await remindTime(clocktimeArg, ' '.join(cmdArgs[2:]), message)
+        #await remindTime(clocktimeArg, ' '.join(cmdArgs[2:]), message)
+        await createReminder('clocktime', None, clocktimeArg, ' '.join(cmdArgs[2:]), message)
 
     # [time in hr:min]
     else:
         timeArg = cmdArgs[0]
-        await remindRaw(timeArg, ' '.join(cmdArgs[1:]), message)
+        await remindRaw('time', None, timeArg, ' '.join(cmdArgs[1:]), message)
 
 
 async def remindDate(dateStr, clocktimeStr, text, message):
@@ -46,9 +48,7 @@ async def remindDate(dateStr, clocktimeStr, text, message):
     if checkDateValid(dateInt) == False:
         await message.channel.send('Invalid date format')
         return
-    # Now have valid dateInt array of [m,d,y]
-        
-        
+    # Now have valid dateInt array of [m,d,y] 
     
     minFlag = ':' in clocktimeStr
     ampmFlag = ('pm' in clocktimeStr) or ('am' in clocktimeStr)
@@ -74,10 +74,110 @@ async def remindDate(dateStr, clocktimeStr, text, message):
     # Now have valid clocktimeInt array of [h,m] CONVERTED TO MILITARY BECAUSE IM NOT DEALING WITH AMPM
     
     await createReminder(dateInt, clocktimeInt, text, message)
+ 
+async def remindTime(clocktimeStr, text, message):
+    clocktimeInt = []
     
-async def createReminder(dateArray, clocktimeArray, text, message):
-    pass
+    minFlag = ':' in clocktimeStr
+    ampmFlag = ('pm' in clocktimeStr) or ('am' in clocktimeStr)
+    
+    if ampmFlag:
+        ampm = clocktimeStr[-2:]
+        clocktimeStr = clocktimeStr[:-2]
+        
+    clocktimeStr = clocktimeStr.split(':')
+    if minFlag == False:
+        clocktimeStr.append('00')
 
+    for s in clocktimeStr:
+        clocktimeInt.append(int(s)) # hour, minute
+    if checkClocktimeValid(clocktimeInt, ampm) == False:
+        await message.channel.send('Invalid time format')
+        return
+    if ampmFlag and ampm == 'pm': # Process adding 12 hours if PM is specified
+        if clocktimeInt[0] == 12:
+            clocktimeInt[0] = 0
+        else:
+            clocktimeInt[0] += 12
+    # Now have valid clocktimeInt array of [h,m] CONVERTED TO MILITARY BECAUSE IM NOT DEALING WITH AMPM
+
+async def remindRaw(timeStr, text, message):
+    pass 
+    
+async def createReminder(rType, dateArg, timeArg, text, message):
+    timeInt = []
+    clocktimeInt = []
+    dateInt = []
+    
+    if rType == 'clocktime' or rType == 'date':
+
+        minFlag = ':' in timeArg
+        ampmFlag = ('pm' in timeArg) or ('am' in timeArg)
+        
+        if ampmFlag:
+            ampm = timeArg[-2:]
+            timeArg = timeArg[:-2]
+            
+        timeArg = timeArg.split(':')
+        if minFlag == False:
+            timeArg.append('00')
+    
+        for s in timeArg:
+            clocktimeInt.append(int(s)) # hour, minute
+        if checkClocktimeValid(timeArg, ampm) == False:
+            await message.channel.send('Invalid time format')
+            return
+        if ampmFlag and ampm == 'pm': # Process adding 12 hours if PM is specified
+            if clocktimeInt[0] == 12:
+                clocktimeInt[0] = 0
+            else:
+                clocktimeInt[0] += 12
+        # Now have valid clocktimeInt array of [h,m] CONVERTED TO MILITARY BECAUSE IM NOT DEALING WITH AMPM
+
+    if rType == 'date':
+
+        # TODO Cut/format into useable date
+        # Date formats to accpet:
+        # 0(0)/0(0)/00(00), 0(0)-0(0)-00(00)
+        # Time formats to accept:
+        # 0(0):00(am/pm)
+        dateArg = dateArg.replace('/', '-')
+        dateArg = dateArg.split('-')
+        for s in dateArg:
+            dateInt.append(int(s)) # month, day, year, in ints
+        if checkDateValid(dateInt) == False:
+            await message.channel.send('Invalid date format')
+            return
+        # Now have valid dateInt array of [m,d,y]
+    
+    # Raw timer hours to add
+    if rType == 'time':
+
+        minFlag = ':' in timeArg
+        
+        timeArg = timeArg.split(':')
+        if minFlag == False:
+            timeArg.append('00')
+        for s in timeArg:
+            timeInt.append(int(s))
+        if checkTimeValid(timeArg) == False:
+            await message.channel.send('Invalid timer format')
+            return
+    
+    
+    # Calculate date/time    
+#    if rType == 'date':
+        
+#    elif rType == 'clocktime':
+        
+#    elif rType == 'time':
+        
+#    else:
+#        LT.Log('Error with rType in createReminder()', logtag)
+#        return
+    
+    
+    
     
 def checkDateValid(dateIntArray):
     if len(dateIntArray) != 3:
@@ -110,13 +210,21 @@ def checkClocktimeValid(clocktimeIntArray, ampmStr):
         hour += 12
         if hour == 24:
             hour = 0
+        elif hour > 24:
+            return False
     if hour < 0 or hour > 23 or minute < 0 or minute > 59:
         return False
     
     return True
 
-async def remindTime(clocktimeStr, text, message):
-    pass
+def checkTimeValid(timeIntArray):
+    if len(timeIntArray) != 2:
+        return False
+    hour = timeIntArray[0]
+    minute = timeIntArray[1]
+    if hour < 0 or minute < 0 or minute > 59:
+        return False
+    
+    return True
+    
 
-async def remindRaw(timeStr, text, message):
-    pass

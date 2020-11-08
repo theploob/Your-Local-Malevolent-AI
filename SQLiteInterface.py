@@ -1,6 +1,5 @@
 import sqlite3
 import LogTools as LT
-import foo as fooimport
 
 dbConnection = None
 dbConnectionInitialized = False
