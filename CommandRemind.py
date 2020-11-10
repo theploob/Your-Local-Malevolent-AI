@@ -1,5 +1,6 @@
 import LogTools as LT
 import datetime as DT
+import SQLiteInterface as SQI
 
 logtag = 'CommandRemind: '
 
@@ -28,9 +29,11 @@ async def entry(cmdArgs, message):
         await createReminder('clocktime', None, clocktimeArg, ' '.join(cmdArgs[2:]), message)
 
     # [time in hr:min]
+    # Timer, runs for the amount of time given
     else:
         timeArg = cmdArgs[0]
-        await remindRaw('time', None, timeArg, ' '.join(cmdArgs[1:]), message)
+        #await remindRaw('time', None, timeArg, ' '.join(cmdArgs[1:]), message)
+        await createReminder('time', None, timeArg, ' '.join(cmdArgs[1:]), message)
 
 
 async def remindDate(dateStr, clocktimeStr, text, message):
@@ -113,6 +116,7 @@ async def createReminder(rType, dateArg, timeArg, text, message):
 
         minFlag = ':' in timeArg
         ampmFlag = ('pm' in timeArg) or ('am' in timeArg)
+        ampm = ''
         
         if ampmFlag:
             ampm = timeArg[-2:]
@@ -160,25 +164,85 @@ async def createReminder(rType, dateArg, timeArg, text, message):
             timeArg.append('00')
         for s in timeArg:
             timeInt.append(int(s))
-        if checkTimeValid(timeArg) == False:
+        if checkTimeValid(timeInt) == False:
             await message.channel.send('Invalid timer format')
             return
     
+    fullReminder = [] # [m,d,y,h,m,text] to be created here
     
-    # Calculate date/time    
-#    if rType == 'date':
+    if rType == 'time': # Add timeint to current time, get clocktime and date
+        fullreminder = addTimeToNowReminder(timeInt, text)
+    elif rType == 'date': # Just create the raw array from given data
+        fullreminder = [dateInt[0], dateInt[1], dateInt[2], clocktimeInt[0], clocktimeInt[1], text]
+    elif rType == 'clocktime': # Create from given clocktime, adding day if needed
+        dtd = DT.datetime.now().date()
+        fullreminder = clockTimeAdjustReminder(clocktimeInt, [dtd.month, dtd.day, dtd.year], text)
         
-#    elif rType == 'clocktime':
-        
-#    elif rType == 'time':
-        
-#    else:
-#        LT.Log('Error with rType in createReminder()', logtag)
-#        return
+    SQI.addReminder(fullreminder, message.author.id)
     
+def clockTimeAdjustReminder(clocktimeInt, dateInt, text):
+    ret = [0,0,0,0,0,0]
+    dtn = DT.datetime.now().time()
+    if (dtn.hour > clocktimeInt[0]) or (dtn.hour == clocktimeInt[0] and dtn.minute >= clocktimeInt[1]):
+        return addDateTimes([dateInt[0],dateInt[1],dateInt[2],clocktimeInt[0],clocktimeInt[1]],[0,1,0,0,0])
+    else:
+        return [dateInt[0],dateInt[1],dateInt[2],clocktimeInt[0],clocktimeInt[1],text]
     
-    
-    
+def addArr(a1, a2):
+    ret = []
+    if len(a1) != len(a2):
+        return None
+    for i, n in enumerate(a1):
+        ret.append(n + a2[i])
+    return ret
+
+def daysInMonth(m, y=0):
+    if m in [1,3,5,7,8,10,12]:
+        return 31
+    elif m in [4,6,9,11]:
+        return 30
+    elif m == 2:
+        if (y % 4):
+            if (y % 100) and not (y % 400):
+                return 28
+            else:
+                return 29
+        else:
+            return 28
+    else:
+        return -1
+
+def badDate(dt):
+    dinm = daysInMonth(dt[0], dt[2])
+    return (dt[0] > 12) or (dt[1] > dinm) or (dt[3] >= 24) or (dt[4] >= 60)
+
+# Adds 2 given dateTimes in the format of [m,d,y,h,m] each
+def addDateTimes(dt1, dt2):
+    ret = addArr(dt1, dt2)
+    while badDate(ret):
+        d = daysInMonth(ret[0]%12,ret[2])
+        if ret[4] >= 60:
+            ret[4] -= 60
+            ret[3] += 1
+        elif ret[3] >= 24:
+            ret[3] -= 24
+            ret[1] += 1
+        elif ret[1] > d:
+            ret[1] -= d
+            ret[0] += 1
+        elif ret[0] > 12:
+            ret[0] -= 12
+            ret[2] += 1
+
+    return ret
+  
+def addTimeToNowReminder(timeInt, text):
+    dt1 = [0,0,0,timeInt[0],timeInt[1]]
+    dtn = DT.datetime.now().time()
+    dtd = DT.datetime.now().date()
+    dt2 = [dtd.month, dtd.day, dtd.year, dtn.hour, dtn.minute]
+    return addDateTimes(dt1,dt2)
+      
 def checkDateValid(dateIntArray):
     if len(dateIntArray) != 3:
         return False
@@ -197,16 +261,15 @@ def checkDateValid(dateIntArray):
         elif day > 28:
             return False
     if DT.datetime.now().date().year > year:
-        return False
-            
+        return False     
     return True
 
 def checkClocktimeValid(clocktimeIntArray, ampmStr):
     if len(clocktimeIntArray) != 2:
         return False
-    hour = clocktimeIntArray[0]
-    minute = clocktimeIntArray[1]
-    if 'pm' in ampm:
+    hour = int(clocktimeIntArray[0])
+    minute = int(clocktimeIntArray[1])
+    if 'pm' in ampmStr:
         hour += 12
         if hour == 24:
             hour = 0

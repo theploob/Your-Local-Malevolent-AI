@@ -24,7 +24,7 @@ async def processCommand(cmdMain, cmdArgs, message):
     switch = {
         # 'tag': cTag,
         # 'timeout': cTimeout,
-        #'remind': cRemind,
+        'remind': cRemind,
         #'roll': cRoll,
         # 'shitpost': cShitpost,
         'join': cJoin,
@@ -36,12 +36,11 @@ async def processCommand(cmdMain, cmdArgs, message):
     if f != 'None':
         await f.entry(cmdArgs, message)
 
-
 # Initial setup function for SQL, etc.
 def init():
     err = False
     err |= ClientHolderInit(client)
-    #err |= SQI.Initialize()
+    err |= SQI.Initialize()
     return err
 
 @client.event
