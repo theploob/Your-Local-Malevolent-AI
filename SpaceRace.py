@@ -13,7 +13,7 @@ import Constants as C
 import SQLiteInterface as SQI
 import Debug
 from ClientHolder import ClientHolderInit
-from ContentControl import bannedWordList
+import ChatModeration
 
 intents = discord.Intents.default()
 intents.members = True
@@ -62,9 +62,10 @@ async def on_message(message):
     if message.author.id == client.user.id:
         return
     
-    for w in bannedWordList:
-        if w in message.content:
-            await message.delete()
+    # Moderate message, return and don't continue if things don't check out
+    if ChatModeration.moderateMessage(message) != ChatModeration.CMOD_MSG_OK:
+        #TODO
+        return
 
     if message.content.startswith('>'):
         cmdStr = message.content[1:]
