@@ -1,6 +1,8 @@
 
 Debug.py
 GetToken.py
+ContentControl.py
+SpaceraceDatabase.db
 SpaceRaceBot.komodoproject
 __pycache__/
 .komodotools/

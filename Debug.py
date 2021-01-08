@@ -1,5 +1,10 @@
 from CommandRemind import addArr
 from CommandRemind import addDateTimes
+from threading import Timer
+from threading import Event
+import ReminderTimer
+import time
+
 
 def expect(func, result, tag):
     try:
@@ -28,8 +33,6 @@ tests = [
 
 def debug():
     print(CommandRemind.daysInMonth(1))
-    
-
 
 def testListRun():   
     for i, t in enumerate(tests):
@@ -38,3 +41,8 @@ def testListRun():
 
 if __name__ == "__main__":
     testListRun()
+    stopFlag = Event()
+    thread = ReminderTimer.ReminderTimer(stopFlag)
+    thread.start()
+    time.sleep(5)
+    stopFlag.set()

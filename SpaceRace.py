@@ -13,6 +13,7 @@ import Constants as C
 import SQLiteInterface as SQI
 import Debug
 from ClientHolder import ClientHolderInit
+from ContentControl import bannedWordList
 
 intents = discord.Intents.default()
 intents.members = True
@@ -24,7 +25,7 @@ async def processCommand(cmdMain, cmdArgs, message):
     switch = {
         # 'tag': cTag,
         # 'timeout': cTimeout,
-        'remind': cRemind,
+        #'remind': cRemind,
         #'roll': cRoll,
         # 'shitpost': cShitpost,
         'join': cJoin,
@@ -41,6 +42,7 @@ def init():
     err = False
     err |= ClientHolderInit(client)
     err |= SQI.Initialize()
+
     return err
 
 @client.event
@@ -60,12 +62,22 @@ async def on_message(message):
     if message.author.id == client.user.id:
         return
     
+    for w in bannedWordList:
+        if w in message.content:
+            await message.delete()
+
     if message.content.startswith('>'):
         cmdStr = message.content[1:]
         if len(cmdStr) <= 0:
             return
-        print('{0} ({1}) gave command {2}'.format(message.author.nick, message.author.id, str(cmdStr)))
-        #print(message.author.name + '(' + str(message.author.id) + ') gave command ' + str(cmdStr))
+        uNick = message.author.nick
+        uName = message.author.name
+        uId = message.author.id
+        if uNick == None:
+            print('{0} ({1}) gave command {2}'.format(uName, uId, str(cmdStr)))
+        else:
+            print('{3} ({0}) ({1}) gave command {2}'.format(uName, uId, str(cmdStr), uNick))            
+
         cmdTok = [x for x in cmdStr.split(' ') if x.strip()] # Tokenize
         cmdMain = cmdTok[0].lower()
         cmdArgs = cmdTok[1:]
@@ -74,4 +86,3 @@ async def on_message(message):
             await processCommand(cmdMain.lower(), cmdArgs, message)
         
 client.run(GetToken.get())
-

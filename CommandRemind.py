@@ -241,7 +241,9 @@ def addTimeToNowReminder(timeInt, text):
     dtn = DT.datetime.now().time()
     dtd = DT.datetime.now().date()
     dt2 = [dtd.month, dtd.day, dtd.year, dtn.hour, dtn.minute]
-    return addDateTimes(dt1,dt2)
+    total = addDateTimes(dt1,dt2)
+    total.append(text)
+    return total
       
 def checkDateValid(dateIntArray):
     if len(dateIntArray) != 3:

@@ -1,5 +1,6 @@
 import sqlite3
 import LogTools as LT
+import datetime as DT
 
 dbConnection = None
 dbConnectionInitialized = False
@@ -47,12 +48,29 @@ def reminderExists(userId):
         return False
 
 # Add an entry to a table given input parameters
-# Given ([mm,dd,yyyy,hh,mm], userId)
+# Given ([mm,dd,yyyy,hh,mm,text], userId)
 # userId, year, month, day, hour, minute, reminder text
-def addReminder(fullReminder, userId):
-    pass
+def addReminder(r, userId):
+    try:
+        c = dbConnection.cursor()
+        rowInfo = [userId,r[2],r[0],r[1],r[3],r[4],r[5]]
+        c.execute(''' INSERT INTO reminders VALUES (?, ?, ?, ?, ?, ?, ?) ''', rowInfo)
+        dbConnection.commit()
+    except Exception:
+        LT.Log('System', 'Internal', 'SQLiteInterface', 'Error with addReminder')
     
 # Remove an entry to a table given input parameters
 def removeReminder():
     pass
 
+# Checks if a reminder has been scheduled for right now
+# Given nowTime, the value returned with datetime.datetime.now()
+# Return a boolean based on the result
+def reminderNow(nowTime):
+    # try:
+    c = dbConnection.cursor()
+    c.execute(''' SELECT count(name) FROM reminders WHERE dday=? AND dmonth=? AND dyear=? AND thour=? AND tmin=? ''', [nowTime.day, nowTime.month, nowTime.year, nowTime.hour, nowTime.minute])
+    return c.fetchone()[0] > 0
+    # except Exception:
+    #     LT.Log('System', 'Internal', 'SQLiteInterface', 'Error with reminderNow(' + str(nowTime) + ')')
+    #     return False
