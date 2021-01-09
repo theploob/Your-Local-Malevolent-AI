@@ -7,6 +7,7 @@ import CommandImplying as cImplying
 import CommandJoin as cJoin
 import CommandLeave as cLeave
 import CommandRoles as cRoles
+import CommandAccept as cAccept
 
 import LogTools as LT
 import Constants as C
@@ -31,7 +32,8 @@ async def processCommand(cmdMain, cmdArgs, message):
         'join': cJoin,
         'leave': cLeave,
         'roles': cRoles,
-        'implying': cImplying
+        'implying': cImplying,
+        'accept': cAccept
     }
     f = switch.get(cmdMain, lambda: 'None')
     if f != 'None':
@@ -59,12 +61,13 @@ async def on_message(message):
     
     LT.Log(message.author.nick, message.author.id, message.channel.name, message.content)
     
+    # Ignore self posts
     if message.author.id == client.user.id:
         return
     
     # Moderate message, return and don't continue if things don't check out
-    if ChatModeration.moderateMessage(message) != ChatModeration.CMOD_MSG_OK:
-        #TODO
+    if (await ChatModeration.moderateMessage(message) != ChatModeration.CMOD_MSG_OK):
+        LT.Log(message.author.name, message.author.id, "System", "User's message was auto-filtered")
         return
 
     if message.content.startswith('>'):
@@ -85,5 +88,21 @@ async def on_message(message):
         
         if cmdMain in C.commandList:
             await processCommand(cmdMain.lower(), cmdArgs, message)
-        
+       
+       
+@client.event
+async def on_member_join(member):
+    LT.Log(member.name, member.id, "System", "User joined the server")
+    
+    roleTok = discord.utils.get(member.guild.roles, id = C.rolesToIdMap.get('landlubber'))
+    try:
+        await member.add_roles(roleTok)
+        print("Added {0} to the landlubber role".format(member.name))
+    except Exception:
+        print("Something went wrong adding {0} to the landlubbers!".format(member.name))
+
+@client.event
+async def on_member_remove(member):
+    LT.Log(member.name, member.id, "System", "User left the server")
+
 client.run(GetToken.get())

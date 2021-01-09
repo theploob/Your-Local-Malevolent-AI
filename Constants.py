@@ -2,7 +2,8 @@ commandList = {
     'implying',
     'join',
     'leave',
-    'roles'
+    'roles',
+    'accept'
 }
 
 joinableRoles = {
@@ -55,8 +56,13 @@ joinableRolesAbvMap = {
 
 rolesToIdMap = {
     'apex legends': 796218301528408065,
+    'landlubber': 797204477382885426,
     'league of legends': 796218067645890592,
     'path of exile': 796830699692621854,
     'warframe': 796217893691064341,
     'world of warcraft': 796217658198458400
+}
+
+textChannelsToIdMap = {
+    'initiation': 797207336119828520
 }
