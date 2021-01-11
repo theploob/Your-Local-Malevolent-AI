@@ -11,6 +11,7 @@ joinableRoles = {
     'league of legends',
     'path of exile',
     'warframe',
+    'warhammer 40k',
     'world of warcraft'
 }
 
@@ -19,6 +20,7 @@ joinableRolesCapitalized = {
     'League of Legends',
     'Path of Exile',
     'Warframe',
+    'Warhammer 40K',
     'World of Warcraft'
 }
 
@@ -33,7 +35,10 @@ joinableRolesAbv = {
     'poe',
     'path',
     'warframe',
-    'warcrime'
+    'warcrime',
+    'warhammer 40k',
+    '40k',
+    'warhammer',
     'world of warcraft',
     'wow'
 }
@@ -50,6 +55,9 @@ joinableRolesAbvMap = {
     'path': 'path of exile',
     'warframe': 'warframe',
     'warcrime': 'warframe',
+    'warhammer': 'warhammer 40k',
+    '40k': 'warhammer 40k',
+    'warhammer 40k': 'warhammer 40k',
     'world of warcraft': 'world of warcraft',
     'wow': 'world of warcraft'
 }
@@ -60,6 +68,7 @@ rolesToIdMap = {
     'league of legends': 796218067645890592,
     'path of exile': 796830699692621854,
     'warframe': 796217893691064341,
+    'warhammer 40k': 798307515381186621,
     'world of warcraft': 796217658198458400
 }
 
