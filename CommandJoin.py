@@ -24,7 +24,7 @@ async def giveRole(user, role, message):
     else:
         try:
             await user.add_roles(roleTok)
-            await message.channel.send("{0}: You've been added to the {1} role".format(message.author.mention, C.joinableRolesAbvMap.get(role)))
+            await message.channel.send("{0}: You've been added to ```{1}```".format(message.author.mention, C.joinableRolesAbvMap.get(role)))
         except Exception as exc:
             print('{0}'.format(exc))
             await message.channel.send("{0}: Something went wrong, contact an admin".format(message.author.mention))

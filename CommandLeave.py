@@ -17,7 +17,7 @@ async def removeRole(user, role, message):
     if roleTok in user.roles:
         try:
             await user.remove_roles(roleTok)
-            await message.channel.send("{0}: You've been removed from the {1} role".format(message.author.mention, C.joinableRolesAbvMap.get(role)))
+            await message.channel.send("{0}: You've been removed ```{1}```".format(message.author.mention, C.joinableRolesAbvMap.get(role)))
         except Exception as exc:
             print('{0}'.format(exc))
             await message.channel.send("{0}: Something went wrong, contact an admin".format(message.author.mention))
