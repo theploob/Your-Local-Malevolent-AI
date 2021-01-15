@@ -103,5 +103,9 @@ async def on_member_remove(member):
 @client.event
 async def on_guild_join():
     pass
+@client.event
+async def on_guild_remove():
+    pass
+
 
 client.run(GetToken.get())
