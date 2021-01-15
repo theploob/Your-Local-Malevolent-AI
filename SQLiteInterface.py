@@ -1,76 +1,77 @@
 import sqlite3
-import LogTools as LT
-import datetime as DT
+import os
+from pathlib import Path
 
-dbConnection = None
-dbConnectionInitialized = False
+dbConnectionList = []
 
-reminderTableExists= False
-
-# Initialize
+# Init
 def Initialize():
+    global MasterConnectionFile
+    global dbConnectionList
     err = False
-    global dbConnection
-    dbConnection = sqlite3.connect('SpaceraceDatabase.db')
-    
-    if dbConnection == None:
-        err = True
-    else:
-        dbConnectionInitialized = True
-        c = dbConnection.cursor()
+   
+    try:
+        # Create db directory if it doesn't exist
+        if os.path.isdir('sqliteDatabases') == False:
+            os.mkdir('sqliteDatabases')
+            
+        if os.path.isfile('ConnectedServerIdList.txt') == False:
+            f = open('ConnectedServerIdList.txt', 'w')
+            f.close()
+            
+        connFile = open('ConnectedServerIdList.txt', 'r+')
+        connectedServerIdList = connFile.read()
+        connFile.close()
+    except Exception as exc:
+        print('{}'.format(exc))
+        return True
+
+    connectedServerIds = [x for x in connectedServerIdList.split('\n') if x.strip()]
+    if len(connectedServerIds) == 0:
+        return False
         
-        try:
-            # Create reminder table if it doesn't exist
-            c.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='reminders' ''')
-            count = c.fetchone()[0]
-            if count == 1:
-                LT.Log('System', 'Internal', 'SQLiteInterface', 'Reminder table found')
-            elif count == 0:
-                LT.Log('System', 'Internal', 'SQLiteInterface', 'Reminder table not found, creating...')
-                c.execute(''' CREATE TABLE reminders (userid integer, dyear integer, dmonth integer, dday integer, thour integer, tmin integer, remindermessage text) ''')
-                dbConnection.commit()
-            else:
-                LT.Log('System', 'Internal', 'SQLiteInterface', 'Error finding/creating reminder table')
-                err = True
-        except Exception:
-            dbConnectionInitialized = False
-            err = True 
+    for cId in connectedServerIds:
+        dbConnectionList.append(DbConnection(cId))
+        
+    for dCL in dbConnectionList:
+        dCL.initConnection()
+        
+    for dCL in dbConnectionList:
+        if dCL.initialized == False:
+            print("Connection {} wasn't initialized".format(dCL.sqlConnectionId))
+    
+    
+    
+    
+    
+    
+    
+    
+    
     return err
 
-# Check that a reminder exists for the requesting person, return boolean related
-def reminderExists(userId):
-    try:
-        c = dbConnection.cursor()
-        c.execute(''' SELECT count(name) FROM reminders WHERE userid=? ''', [userId])
-        return c.fetchone()[0] > 0
-    except Exception:
-        LT.Log('System', 'Internal', 'SQLiteInterface', 'Error with reminderExists(' + str(userId) + ')')
-        return False
-
-# Add an entry to a table given input parameters
-# Given ([mm,dd,yyyy,hh,mm,text], userId)
-# userId, year, month, day, hour, minute, reminder text
-def addReminder(r, userId):
-    try:
-        c = dbConnection.cursor()
-        rowInfo = [userId,r[2],r[0],r[1],r[3],r[4],r[5]]
-        c.execute(''' INSERT INTO reminders VALUES (?, ?, ?, ?, ?, ?, ?) ''', rowInfo)
-        dbConnection.commit()
-    except Exception:
-        LT.Log('System', 'Internal', 'SQLiteInterface', 'Error with addReminder')
+# Print a list of all servers with databases
+#TODO
+def listConnectedServers():
+    global dbConnectionList
+    for c in dbConnectionList:
+        print('{}'.format(c.sqlConnectionId))
     
-# Remove an entry to a table given input parameters
-def removeReminder():
-    pass
 
-# Checks if a reminder has been scheduled for right now
-# Given nowTime, the value returned with datetime.datetime.now()
-# Return a boolean based on the result
-def reminderNow(nowTime):
-    # try:
-    c = dbConnection.cursor()
-    c.execute(''' SELECT count(name) FROM reminders WHERE dday=? AND dmonth=? AND dyear=? AND thour=? AND tmin=? ''', [nowTime.day, nowTime.month, nowTime.year, nowTime.hour, nowTime.minute])
-    return c.fetchone()[0] > 0
-    # except Exception:
-    #     LT.Log('System', 'Internal', 'SQLiteInterface', 'Error with reminderNow(' + str(nowTime) + ')')
-    #     return False
+
+# Instance of a running sqlite3 database connection
+class DbConnection:
+    def __init__(self, connectionId):
+        self.sqlConnectionId = connectionId
+        self.sqlConnection = None
+        self.initialized = False
+        
+    def initConnection(self):
+        try:
+            os.chdir('sqliteDatabases')
+            self.sqlConnection = sqlite3.connect(self.sqlConnectionId + '.db')
+            self.initialized = (self.sqlConnection != None)
+            os.chdir('../')
+        except Exception as exc:
+            print('Exception in initConnection ({0}): {1}'.format(self.sqlConnectionId, exc))
+    

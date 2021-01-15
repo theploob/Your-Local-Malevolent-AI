@@ -4,6 +4,7 @@ from threading import Timer
 from threading import Event
 import ReminderTimer
 import time
+from ClientHolder import getGuildList
 
 
 def expect(func, result, tag):
@@ -32,7 +33,7 @@ tests = [
 ]
 
 def debug():
-    print(CommandRemind.daysInMonth(1))
+    print(getGuildList())
 
 def testListRun():   
     for i, t in enumerate(tests):
@@ -41,8 +42,5 @@ def testListRun():
 
 if __name__ == "__main__":
     testListRun()
-    stopFlag = Event()
-    thread = ReminderTimer.ReminderTimer(stopFlag)
-    thread.start()
-    time.sleep(5)
-    stopFlag.set()
+
+

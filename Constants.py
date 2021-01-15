@@ -47,6 +47,7 @@ joinableRolesAbv = {
     'warcrime',
     'warhammer 40k',
     '40k',
+    'wh40k',
     'warhammer',
     'world of warcraft',
     'wow'
@@ -73,6 +74,7 @@ joinableRolesAbvMap = {
     'warcrime': 'warframe',
     'warhammer': 'warhammer 40k',
     '40k': 'warhammer 40k',
+    'wh40k': 'warhammer 40k',
     'warhammer 40k': 'warhammer 40k',
     'world of warcraft': 'world of warcraft',
     'wow': 'world of warcraft'
@@ -80,7 +82,6 @@ joinableRolesAbvMap = {
 
 rolesToIdMap = {
     'apex legends': 796218301528408065,
-    'landlubber': 797204477382885426,
     'league of legends': 796218067645890592,
     'pro league of legends': 798464518635520040,
     'path of exile': 796830699692621854,

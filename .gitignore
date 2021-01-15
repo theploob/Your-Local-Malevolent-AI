@@ -2,8 +2,10 @@
 Debug.py
 GetToken.py
 ContentControl.py
+ConnectedServerList.txt
 SpaceraceDatabase.db
 SpaceRaceBot.komodoproject
 __pycache__/
 .komodotools/
 logs/
+sqliteDatabases/

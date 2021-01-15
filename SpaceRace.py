@@ -54,7 +54,8 @@ async def on_ready():
         print('Error in beginning initialization, stopping server')
         await client.logout()
     else:
-        print('Initialization complete')   
+        print('Initialization complete')
+        Debug.debug()
 
 @client.event
 async def on_message(message):
@@ -94,13 +95,6 @@ async def on_message(message):
 async def on_member_join(member):
     LT.Log(member.name, member.id, "System", "User joined the server")
     
-    roleTok = discord.utils.get(member.guild.roles, id = C.rolesToIdMap.get('landlubber'))
-    try:
-        await member.add_roles(roleTok)
-        print("Added {0} to the landlubber role".format(member.name))
-    except Exception:
-        print("Something went wrong adding {0} to the landlubbers!".format(member.name))
-
 @client.event
 async def on_member_remove(member):
     LT.Log(member.name, member.id, "System", "User left the server")

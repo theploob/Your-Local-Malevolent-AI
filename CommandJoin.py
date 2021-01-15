@@ -15,7 +15,6 @@ async def entry(cmdArgs, message):
             mr = m.roles
             
             await giveRole(message.author, roleToJoin, message)
-            
 
 async def giveRole(user, role, message):
     roleTok = discord.utils.get(message.guild.roles, id = C.rolesToIdMap.get(C.joinableRolesAbvMap.get(role)))

@@ -15,5 +15,5 @@ def GetClient():
 
 def getGuildList():
     global heldClient
-    return heldClients.guilds
+    return heldClient.guilds
 
