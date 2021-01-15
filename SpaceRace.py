@@ -99,4 +99,9 @@ async def on_member_join(member):
 async def on_member_remove(member):
     LT.Log(member.name, member.id, "System", "User left the server")
 
+# TODO Init database when added to guild?
+@client.event
+async def on_guild_join():
+    pass
+
 client.run(GetToken.get())

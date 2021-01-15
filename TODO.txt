@@ -8,5 +8,9 @@ reminder function
     
 tags - create a tag for something, that thing gets remembered and brought back up when the tag is called
 die roller
-daily shitposts - randomly generated sentence, top psots from a list of subreddits, 4chan post, 
-grabbing league patch notes automatically??? possibly from twitter, 
+
+Database Handling:
+    file has list of all servers with databases
+    on boot, get list of servers connected and make database connections based on those
+    on server joining, make a connection to their database, then add them to the list if theyre not there
+    on server leaving, do nothing. database remains, no connection since on boot the client can't see them

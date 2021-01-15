@@ -2,7 +2,6 @@ import discord
 
 heldClient = None
 
-
 def ClientHolderInit(client):
     global heldClient
     heldClient = client

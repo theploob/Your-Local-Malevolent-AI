@@ -39,16 +39,23 @@ def Initialize():
     for dCL in dbConnectionList:
         if dCL.initialized == False:
             print("Connection {} wasn't initialized".format(dCL.sqlConnectionId))
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     return err
+
+#TODO
+async def addNewServerDatabase(serverId):
+    global MasterConnectionFile
+    global dbConnectionList
+    
+    # Iterate over existing servers, either
+    
+    
+    
+    
+    
+    pass
+    
+
 
 # Print a list of all servers with databases
 #TODO
