@@ -8,6 +8,7 @@ import CommandJoin as cJoin
 import CommandLeave as cLeave
 import CommandRoles as cRoles
 import CommandAccept as cAccept
+import CommandSetup as cSetup
 
 import LogTools as LT
 import Constants as C
@@ -33,7 +34,8 @@ async def processCommand(cmdMain, cmdArgs, message):
         'leave': cLeave,
         'roles': cRoles,
         'implying': cImplying,
-        'accept': cAccept
+        'accept': cAccept,
+        'setup': cSetup
     }
     f = switch.get(cmdMain, lambda: 'None')
     if f != 'None':
@@ -55,7 +57,7 @@ async def on_ready():
         await client.logout()
     else:
         print('Initialization complete')
-        Debug.debug()
+        #Debug.debug()
 
 @client.event
 async def on_message(message):
@@ -101,10 +103,11 @@ async def on_member_remove(member):
 
 # TODO Init database when added to guild?
 @client.event
-async def on_guild_join():
-    pass
+async def on_guild_join(guild):
+    SQI.addNewServerDatabase(guild)
+
 @client.event
-async def on_guild_remove():
+async def on_guild_remove(guild):
     pass
 
 

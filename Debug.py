@@ -33,7 +33,10 @@ tests = [
 ]
 
 def debug():
-    print(getGuildList())
+    #print(getGuildList())
+
+    
+    pass
 
 def testListRun():   
     for i, t in enumerate(tests):

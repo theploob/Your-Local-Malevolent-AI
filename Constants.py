@@ -3,7 +3,8 @@ commandList = {
     'join',
     'leave',
     'roles',
-    'accept'
+    'accept',
+    'setup'
 }
 
 joinableRoles = {
@@ -11,6 +12,7 @@ joinableRoles = {
     'league of legends',
     'pro league of legends',
     'path of exile',
+    'rainbow six',
     'warframe',
     'warhammer 40k',
     'world of warcraft'
@@ -21,6 +23,7 @@ joinableRolesCapitalized = {
     'League of Legends',
     'Pro League of Legends',
     'Path of Exile',
+    'Rainbow Six',
     'Warframe',
     'Warhammer 40K',
     'World of Warcraft'
@@ -43,6 +46,8 @@ joinableRolesAbv = {
     'path of exile',
     'poe',
     'path',
+    'rainbow six',
+    'r6',
     'warframe',
     'warcrime',
     'warhammer 40k',
@@ -70,6 +75,8 @@ joinableRolesAbvMap = {
     'path of exile': 'path of exile',
     'poe': 'path of exile',
     'path': 'path of exile',
+    'rainbow six': 'rainbow six',
+    'r6': 'rainbow six',
     'warframe': 'warframe',
     'warcrime': 'warframe',
     'warhammer': 'warhammer 40k',
@@ -85,6 +92,7 @@ rolesToIdMap = {
     'league of legends': 796218067645890592,
     'pro league of legends': 798464518635520040,
     'path of exile': 796830699692621854,
+    'rainbow six': 810259419979317308,
     'warframe': 796217893691064341,
     'warhammer 40k': 798307515381186621,
     'world of warcraft': 796217658198458400
