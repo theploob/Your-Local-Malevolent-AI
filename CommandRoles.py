@@ -2,6 +2,7 @@ import Constants as C
 import discord
 import re
 import ClientHolder
+import SQLiteInterface as SQI
 
 async def entry(cmdArgs, message):
     if len(cmdArgs) == 0:
@@ -28,18 +29,42 @@ async def modReactedRole(payload):
     if roleName == None:
         return
     
-    if payload.event_type == 'REACTION_ADD':
-        addUserToRole(userId, roleName)
-    elif payload.event_type == 'REACTION_REMOVE':
-        removeUserFromRole(userId, roleName)
-    else:
-        raise Exception("Error in modReactedRole: Couldn't determine the event_type")
+    if await isRoleNameValid(roleName, guild) == False:
+        return
+    
+    hasRoleAlready = await userHasRole(userId, roleName, guild)
+    
+    if (payload.event_type == 'REACTION_ADD') and (hasRoleAlready == False):
+        await addUserToRole(userId, roleName, guild)
+    elif (payload.event_type == 'REACTION_REMOVE') and (hasRoleAlready):
+        await removeUserFromRole(userId, roleName, guild)
 
-async def addUserToRole(userId, roleName):
-    pass
+async def allServerBootSetup():
+    for dbConnection in SQI.dbConnectionList:
+        if (dbConnection.roleMsgId != 0) and (dbConnection.initialized == True):
+            guild = await ClientHolder.heldClient.fetch_guild(dbConnection.getDbConnectionGuildId())
+            #channel = await 
+            messageId = dbConnection.getDbConnectionRoleMsgId()
+            pass #TODO save off channel of the message too
+    
 
-async def removeUserFromRole(userId, roleName):
-    pass    
+async def addUserToRole(userId, roleName, guild):
+    try:
+        user = await guild.fetch_member(userId)
+        guildRole= discord.utils.get(guild.roles, name = roleName)
+        await user.add_roles(guildRole)
+        pass
+    except Exception as e:
+        print('Exception in \naddUserToRole(\n{0}\n{1}\n{2})'.format(userId, roleName, guild))
+
+async def removeUserFromRole(userId, roleName, guild):
+    try:
+        user = await guild.fetch_member(userId)
+        guildRole= discord.utils.get(guild.roles, name = roleName)
+        await user.remove_roles(guildRole)
+        pass
+    except Exception as e:
+        print('Exception in removeUserFromRole(\n{0}\n{1}\n{2})'.format(userId, roleName, guild))   
 
 def getRoleFromEmoji(message, emoji):
     try:
@@ -64,4 +89,21 @@ def getRoleFromEmoji(message, emoji):
     except Exception as e:
         print('Exception in getRoleFromEmoji: {}'.format(e))
     
+async def isRoleNameValid(roleName, guild):
+    guildRoles = await guild.fetch_roles()
+    for r in guildRoles:
+        if r.name == roleName:
+            return True
+        
+    return False
     
+async def userHasRole(userId, roleName, guild):
+    roleNameGuild = discord.utils.get(guild.roles, name = roleName).name
+    user = await guild.fetch_member(userId)
+    roleNameUserTok = discord.utils.get(user.roles, name = roleName)
+    if roleNameUserTok == None:
+        return False
+    roleNameUser = roleNameUserTok.name
+    return roleNameUser == roleNameGuild
+
+

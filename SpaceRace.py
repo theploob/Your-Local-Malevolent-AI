@@ -33,11 +33,11 @@ async def processCommand(cmdMain, cmdArgs, message):
         #'remind': cRemind,
         #'roll': cRoll,
         # 'shitpost': cShitpost,
-        'join': cJoin,
-        'leave': cLeave,
-        'roles': cRoles,
+        #'join': cJoin,
+        #'leave': cLeave,
+        #'roles': cRoles,
         'implying': cImplying,
-        'accept': cAccept,
+        #'accept': cAccept,
         'setup': cSetup
     }
     f = switch.get(cmdMain, lambda: 'None')
@@ -61,6 +61,7 @@ async def on_ready():
         await client.logout()
     else:
         serverInitialized = True
+        cRoles.allServerBootSetup()
         print('Initialization complete')
         #Debug.debug()
 

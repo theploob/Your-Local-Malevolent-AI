@@ -153,6 +153,13 @@ class DbConnection:
         except MultipleTable as exc:
             print("Exception in initConnection: Multiple Tables exist, can't initialize")
 
+    def getDbConnectionGuildId(self):
+        return self.sqlConnectionId
+    
+    def getDbConnectionRoleMsgId(self):
+        return self.roleMsgId
+    
+
     def saveRoleMessageId(self, messageId):
         try:
             c = self.sqlConnection.cursor()
