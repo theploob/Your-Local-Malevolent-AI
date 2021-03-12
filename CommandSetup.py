@@ -22,8 +22,9 @@ async def entry(cmdArgs, message):
                 reRes = re.search('========(.*)========', cCMsg, re.S)
                 if reRes != None:
                     reactionMessageId = cMsg.id
+                    reacionMessageChannel = cMsg.channel.id
                     break
             if reRes == None:
                 return
             
-            await saveGuildRoleMessageId(message.guild.id, reactionMessageId)
+            await saveGuildRoleMessageId(message.guild.id, reactionMessageId, reacionMessageChannel)

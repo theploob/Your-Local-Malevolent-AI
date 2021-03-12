@@ -102,14 +102,14 @@ async def getRoleMessageForGuild(guildId):
     else:
         return db.getRoleMessageId()
 
-async def saveGuildRoleMessageId(guildId, messageId):
+async def saveGuildRoleMessageId(guildId, messageId, channelId):
     
     # use the guild ID to get the right connection, then save the message ID there
     dbCon = getDbConnection(guildId)
     if dbCon == None:
         print("Error in saveGuildRileMessageId: getDbConnection returned Null")
     else:
-        dbCon.saveRoleMessageId(messageId)
+        dbCon.saveRoleMessageId(messageId, channelId)
     pass
 
 # Get the DbConnection based on the given guildId, returns None if none found
@@ -127,6 +127,7 @@ class DbConnection:
         self.sqlConnection = None
         self.initialized = False
         self.roleMsgId = 0
+        self.roleChannelId = 0
         
     def initConnection(self):
         try:
@@ -142,11 +143,12 @@ class DbConnection:
             if count == 1:
                 pass
             elif count == 0:
-                c.execute(''' CREATE TABLE rolemessage (messageid integer) ''')
+                c.execute(''' CREATE TABLE rolemessage (messageid integer, channelid integer) ''')
             else:
                 raise MultipleTable
             
             self.roleMsgId = self.getRoleMessageId()
+            self.roleChannelId = self.getRoleChannelId()
         except Exception as exc:
             print('Exception in initConnection ({0}): {1}'.format(self.sqlConnectionId, exc))
     
@@ -159,14 +161,17 @@ class DbConnection:
     def getDbConnectionRoleMsgId(self):
         return self.roleMsgId
     
-
-    def saveRoleMessageId(self, messageId):
+    def getDbConnectionRoleChannelId(self):
+        return self.roleChannelId
+    
+    def saveRoleMessageId(self, messageId, channelId):
         try:
             c = self.sqlConnection.cursor()
             c.execute(''' DELETE FROM rolemessage ''')
-            c.execute(''' INSERT INTO rolemessage VALUES (?) ''', [int(messageId)])
+            c.execute(''' INSERT INTO rolemessage VALUES (?,?) ''', [int(messageId),int(channelId)])
             self.sqlConnection.commit()
             self.roleMsgId = messageId
+            self.roleChannelId = channelId
         except Exception as exc:
             print('Exception in saveRoleMessageId ({0}): {1}'.format(self.sqlConnectionId, exc))
             
@@ -176,12 +181,23 @@ class DbConnection:
             c.execute(''' SELECT * FROM rolemessage ''')
             idRow = c.fetchone()
             if idRow == None:
-                #raise Exception('Exception in getRoleMessageId ({0}): SELECT FROM returned NULL'.format(self.sqlConnectionId))
                 return 0
             self.roleMsgId = idRow[0]
             return idRow[0]
         except Exception as exc:
             print('Exception in getRoleMessageId ({0}): {1}'.format(self.sqlConnectionId, exc))
+            
+    def getRoleChannelId(self):
+        try:
+            c = self.sqlConnection.cursor()
+            c.execute(''' SELECT * FROM rolemessage ''')
+            idRow = c.fetchone()
+            if idRow == None:
+                return 0
+            self.roleChannelId = idRow[1]
+            return idRow[1]
+        except Exception as exc:
+            print('Exception in getRoleChannelId ({0}): {1}'.format(self.sqlConnectionId, exc))
             
     
     

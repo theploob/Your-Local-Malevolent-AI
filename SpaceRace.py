@@ -61,7 +61,7 @@ async def on_ready():
         await client.logout()
     else:
         serverInitialized = True
-        cRoles.allServerBootSetup()
+        await cRoles.allServerBootSetup()
         print('Initialization complete')
         #Debug.debug()
 

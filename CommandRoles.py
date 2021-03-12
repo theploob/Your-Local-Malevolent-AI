@@ -40,12 +40,17 @@ async def modReactedRole(payload):
         await removeUserFromRole(userId, roleName, guild)
 
 async def allServerBootSetup():
-    for dbConnection in SQI.dbConnectionList:
-        if (dbConnection.roleMsgId != 0) and (dbConnection.initialized == True):
-            guild = await ClientHolder.heldClient.fetch_guild(dbConnection.getDbConnectionGuildId())
-            #channel = await 
-            messageId = dbConnection.getDbConnectionRoleMsgId()
-            pass #TODO save off channel of the message too
+    try:
+        for dbConnection in SQI.dbConnectionList:
+            if (dbConnection.roleMsgId != 0) and (dbConnection.initialized == True):
+                guild = await ClientHolder.heldClient.fetch_guild(dbConnection.getDbConnectionGuildId())
+                channel = await ClientHolder.heldClient.fetch_channel(dbConnection.getDbConnectionRoleChannelId())
+                message = await channel.fetch_message(dbConnection.getDbConnectionRoleMsgId())
+
+#TODO Comb through reactions and add/remove people as needed
+                pass #TODO save off channel of the message too
+    except Exception as e:
+        print('Exception in allServerBootSetup: {0}'.format(e))
     
 
 async def addUserToRole(userId, roleName, guild):
