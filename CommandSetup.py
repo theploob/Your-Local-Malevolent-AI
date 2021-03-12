@@ -27,11 +27,3 @@ async def entry(cmdArgs, message):
                 return
             
             await saveGuildRoleMessageId(message.guild.id, reactionMessageId)
-                
-                
-                
-                
-            pass
-            
-            
-            

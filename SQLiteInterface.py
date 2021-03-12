@@ -86,6 +86,9 @@ async def addNewServerDatabase(guild):
     else:
         print("Error adding DbConnection for guild {0} (id {1})".format(guild.name, guild.id))
 
+async def removeServerDatabase(guild):
+    pass
+
 # Print a list of all servers with databases
 def listConnectedServers():
     global dbConnectionList
@@ -93,16 +96,27 @@ def listConnectedServers():
         print('{}'.format(c.sqlConnectionId))
     
 async def getRoleMessageForGuild(guildId):
-    return 0
+    db = getDbConnection(guildId)
+    if db == None:
+        return 0
+    else:
+        return db.getRoleMessageId()
 
 async def saveGuildRoleMessageId(guildId, messageId):
+    
+    # use the guild ID to get the right connection, then save the message ID there
+    dbCon = getDbConnection(guildId)
+    if dbCon == None:
+        print("Error in saveGuildRileMessageId: getDbConnection returned Null")
+    else:
+        dbCon.saveRoleMessageId(messageId)
     pass
 
 # Get the DbConnection based on the given guildId, returns None if none found
 def getDbConnection(guildId):
     global dbConnectionList
     for db in dbConnectionList:
-        if db.sqlConnectionId == guildId:
+        if int(db.sqlConnectionId) == guildId:
             return db
     return None
       
@@ -112,6 +126,7 @@ class DbConnection:
         self.sqlConnectionId = connectionId
         self.sqlConnection = None
         self.initialized = False
+        self.roleMsgId = 0
         
     def initConnection(self):
         try:
@@ -119,6 +134,47 @@ class DbConnection:
             self.sqlConnection = sqlite3.connect(self.sqlConnectionId + '.db')
             self.initialized = (self.sqlConnection != None)
             os.chdir('../')
+            
+            # Set up tables
+            c = self.sqlConnection.cursor()
+            c.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='rolemessage' ''')
+            count = c.fetchone()[0]
+            if count == 1:
+                pass
+            elif count == 0:
+                c.execute(''' CREATE TABLE rolemessage (messageid integer) ''')
+            else:
+                raise MultipleTable
+            
+            self.roleMsgId = self.getRoleMessageId()
         except Exception as exc:
             print('Exception in initConnection ({0}): {1}'.format(self.sqlConnectionId, exc))
+    
+        except MultipleTable as exc:
+            print("Exception in initConnection: Multiple Tables exist, can't initialize")
+
+    def saveRoleMessageId(self, messageId):
+        try:
+            c = self.sqlConnection.cursor()
+            c.execute(''' DELETE FROM rolemessage ''')
+            c.execute(''' INSERT INTO rolemessage VALUES (?) ''', [int(messageId)])
+            self.sqlConnection.commit()
+            self.roleMsgId = messageId
+        except Exception as exc:
+            print('Exception in saveRoleMessageId ({0}): {1}'.format(self.sqlConnectionId, exc))
+            
+    def getRoleMessageId(self):
+        try:
+            c = self.sqlConnection.cursor()
+            c.execute(''' SELECT * FROM rolemessage ''')
+            idRow = c.fetchone()
+            if idRow == None:
+                #raise Exception('Exception in getRoleMessageId ({0}): SELECT FROM returned NULL'.format(self.sqlConnectionId))
+                return 0
+            self.roleMsgId = idRow[0]
+            return idRow[0]
+        except Exception as exc:
+            print('Exception in getRoleMessageId ({0}): {1}'.format(self.sqlConnectionId, exc))
+            
+    
     

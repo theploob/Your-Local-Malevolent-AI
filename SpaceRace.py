@@ -19,7 +19,10 @@ import ChatModeration
 
 intents = discord.Intents.default()
 intents.members = True
+intents.reactions = True
 client = discord.Client(intents = intents)
+
+serverInitialized = False
 
 # Process the given command with parameters
 async def processCommand(cmdMain, cmdArgs, message):
@@ -51,16 +54,20 @@ def init():
 
 @client.event
 async def on_ready():
+    global serverInitialized
     print('{0.user} logged in successfully'.format(client))
     if init():
         print('Error in beginning initialization, stopping server')
         await client.logout()
     else:
+        serverInitialized = True
         print('Initialization complete')
         #Debug.debug()
 
 @client.event
 async def on_message(message):
+    if serverInitialized == False:
+        return
     
     LT.Log(message.author.nick, message.author.id, message.channel.name, message.content)
     
@@ -91,24 +98,48 @@ async def on_message(message):
         
         if cmdMain in C.commandList:
             await processCommand(cmdMain.lower(), cmdArgs, message)
-       
+
+@client.event
+async def on_raw_reaction_add(payload):
+    if serverInitialized == False:
+        return
+    storedMsgId = SQI.getDbConnection(payload.guild_id).roleMsgId
+    if payload.message_id == storedMsgId:
+        await cRoles.modReactedRole(payload)
+
+@client.event
+async def on_raw_reaction_remove(payload):
+    if serverInitialized == False:
+        return
+    storedMsgId = SQI.getDbConnection(payload.guild_id).roleMsgId
+    if payload.message_id == storedMsgId:
+        await cRoles.modReactedRole(payload)
+
        
 @client.event
 async def on_member_join(member):
+    if serverInitialized == False:
+        return
     LT.Log(member.name, member.id, "System", "User joined the server")
     
 @client.event
 async def on_member_remove(member):
+    if serverInitialized == False:
+        return
     LT.Log(member.name, member.id, "System", "User left the server")
 
-# TODO Init database when added to guild?
 @client.event
 async def on_guild_join(guild):
+    if serverInitialized == False:
+        return
     SQI.addNewServerDatabase(guild)
+    LT.Log(guild.name, guild.id, "System", "Guild joined the botnet")
 
 @client.event
 async def on_guild_remove(guild):
-    pass
-
+    if serverInitialized == False:
+        return
+    SQI.removeServerDatabase(guild)
+    LT.Log(guild.name, guild.id, "System", "Guild left the botnet")
 
 client.run(GetToken.get())
