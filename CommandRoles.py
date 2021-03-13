@@ -46,9 +46,23 @@ async def allServerBootSetup():
                 guild = await ClientHolder.heldClient.fetch_guild(dbConnection.getDbConnectionGuildId())
                 channel = await ClientHolder.heldClient.fetch_channel(dbConnection.getDbConnectionRoleChannelId())
                 message = await channel.fetch_message(dbConnection.getDbConnectionRoleMsgId())
+                reactionsList = message.reactions
+                
+                # iterate over each member in the guild, check their roles vs message roles
+                users = await guild.fetch_members(limit=None).flatten()
+                for user in users:
+                    if user.id != 730947466983374900: # Remove self
+                        for reaction in reactionsList:
+                            reactionUsers = await reaction.users().flatten()
+                            uHasRole = await userHasRole(user.id, getRoleFromEmoji(message, reaction.emoji), guild)
+                            mInMList = memberInMemberList(user, reactionUsers)
+                            #if (memberInMemberList(user, reactionUsers) == True) and (await userHasRole(user.id, reaction.emoji, guild) == False):
+                            if mInMList and not uHasRole:
+                                await addUserToRole(user.id, getRoleFromEmoji(message, reaction.emoji), guild)
+                            #elif (memberInMemberList(user, reactionUsers) == False) and (await userHasRole(user.id, reaction.emoji, guild) == True):
+                            elif uHasRole and not mInMList:
+                                await removeUserFromRole(user.id, getRoleFromEmoji(message, reaction.emoji), guild)
 
-#TODO Comb through reactions and add/remove people as needed
-                pass #TODO save off channel of the message too
     except Exception as e:
         print('Exception in allServerBootSetup: {0}'.format(e))
     
@@ -86,8 +100,12 @@ def getRoleFromEmoji(message, emoji):
             raise Exception
         
         for p in emojiMap:
-            if p[0] == emoji.name:
-                return p[1]
+            if type(emoji) == str:
+                if p[0] == emoji:
+                    return p[1]
+            elif type(emoji) == discord.PartialEmoji:
+                if p[0] == emoji.name:
+                    return p[1]
             
         return None
 
@@ -103,12 +121,16 @@ async def isRoleNameValid(roleName, guild):
     return False
     
 async def userHasRole(userId, roleName, guild):
-    roleNameGuild = discord.utils.get(guild.roles, name = roleName).name
     user = await guild.fetch_member(userId)
-    roleNameUserTok = discord.utils.get(user.roles, name = roleName)
-    if roleNameUserTok == None:
+    
+    for uRole in user.roles:
+        if uRole.name == roleName:
+            return True
+    return False
+
+def memberInMemberList(member, memberList):
+    for m in memberList:
+        if m.id == member.id:
+            return True
         return False
-    roleNameUser = roleNameUserTok.name
-    return roleNameUser == roleNameGuild
-
-
+    
