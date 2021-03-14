@@ -4,6 +4,7 @@ GetToken.py
 ContentControl.py
 ConnectedServerIdList.txt
 SpaceRaceBot.komodoproject
+activestate.yaml
 __pycache__/
 .komodotools/
 logs/
