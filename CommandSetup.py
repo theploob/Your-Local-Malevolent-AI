@@ -3,6 +3,11 @@ from SQLiteInterface import saveGuildRoleMessageId
 
 async def entry(cmdArgs, message):
     
+    #checkPerms = message.author.permissions_in(message.guild)
+    #TODO
+    if message.author.id != 263515295019171861:
+        return
+    
     numArgs = len(cmdArgs)
     if len(cmdArgs) == 0:
         pass

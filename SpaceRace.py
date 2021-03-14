@@ -4,10 +4,7 @@ import GetToken
 import CommandRemind as cRemind
 import CommandRoll as cRoll
 import CommandImplying as cImplying
-import CommandJoin as cJoin
-import CommandLeave as cLeave
 import CommandRoles as cRoles
-import CommandAccept as cAccept
 import CommandSetup as cSetup
 
 import LogTools as LT
@@ -33,11 +30,8 @@ async def processCommand(cmdMain, cmdArgs, message):
         #'remind': cRemind,
         #'roll': cRoll,
         # 'shitpost': cShitpost,
-        #'join': cJoin,
-        #'leave': cLeave,
         #'roles': cRoles,
         'implying': cImplying,
-        #'accept': cAccept,
         'setup': cSetup
     }
     f = switch.get(cmdMain, lambda: 'None')
@@ -133,7 +127,7 @@ async def on_member_remove(member):
 async def on_guild_join(guild):
     if serverInitialized == False:
         return
-    SQI.addNewServerDatabase(guild)
+    await SQI.addNewServerDatabase(guild)
     LT.Log(guild.name, guild.id, "System", "Guild joined the botnet")
 
 @client.event

@@ -5,17 +5,7 @@ import ClientHolder
 import SQLiteInterface as SQI
 
 async def entry(cmdArgs, message):
-    if len(cmdArgs) == 0:
-        await listAllRoles(message)
-    else:
-        await listAllRoles(message)
-
-async def listAllRoles(message):
-    msgStr = '```You can join the following roles with ">join <role>"\n\nJoinable roles:\n'
-    for r in C.joinableRolesCapitalized:
-        msgStr += '\t{0}\n'.format(r)
-    msgStr += '```'
-    await message.channel.send(msgStr)
+    pass
 
 async def modReactedRole(payload):
     userId = payload.user_id
@@ -41,44 +31,43 @@ async def modReactedRole(payload):
         await removeUserFromRole(user, roleName, guild)
 
 async def roleMessageSync():
-    # try:
-    for dbConnection in SQI.dbConnectionList:
-        if (dbConnection.roleMsgId != 0) and (dbConnection.initialized == True):
-            guild = await ClientHolder.heldClient.fetch_guild(dbConnection.getDbConnectionGuildId())
-            channel = await ClientHolder.heldClient.fetch_channel(dbConnection.getDbConnectionRoleChannelId())
-            message = await channel.fetch_message(dbConnection.getDbConnectionRoleMsgId())
-            reactionsList = message.reactions
-            
-            memberList = await guild.fetch_members(limit=None).flatten()
-            memberCount = len(memberList)
-            updatedMembers = 0
-            print("Processing guild: {0}".format(guild.name))
-            
-            # iterate over each member in the guild, check their roles vs message roles
-            users = await guild.fetch_members(limit=None).flatten()
-            for user in users:
-                if user.id != 730947466983374900: # Remove self
-                    print("{:.0f}%".format(updatedMembers / memberCount * 100))
-                    #print("Processing user {0} ({1})".format(user.name, guild.name))
-                    for reaction in reactionsList:
-                        roleFromEmoji = getRoleFromEmoji(message, reaction.emoji)
-                        reactionUsers = await reaction.users().flatten()
-
-                        uHasRole = await userHasRole(user, roleFromEmoji, guild)
-                        mInMList = memberInMemberList(user, reactionUsers)                         
-                        
-                        if mInMList and not uHasRole:
-                            await addUserToRole(user.id, roleFromEmoji, guild)
-                            print("Added user to role {0}".format(roleFromEmoji))
-                        elif uHasRole and not mInMList:
-                            await removeUserFromRole(user.id, roleFromEmoji, guild)
-                            print("Removed user from role {0}".format(roleFromEmoji))
-                    updatedMembers += 1
-
-    print("Server finished roleMessageSync()")
-    # except Exception as e:
-    #     print('Exception in allServerBootSetup: {0}'.format(e))
+    try:
+        for dbConnection in SQI.dbConnectionList:
+            if (dbConnection.roleMsgId != 0) and (dbConnection.initialized == True):
+                guild = await ClientHolder.heldClient.fetch_guild(dbConnection.getDbConnectionGuildId())
+                channel = await ClientHolder.heldClient.fetch_channel(dbConnection.getDbConnectionRoleChannelId())
+                message = await channel.fetch_message(dbConnection.getDbConnectionRoleMsgId())
+                reactionsList = message.reactions
+                
+                #memberList = await guild.fetch_members(limit=None).flatten()
+                #memberCount = len(memberList)
+                #updatedMembers = 0
+                print("Processing guild: {0}".format(guild.name))
+                
+                # iterate over each member in the guild, check their roles vs message roles
+                users = await guild.fetch_members(limit=None).flatten()
+                for user in users:
+                    if user.id != 730947466983374900: # Remove self
+                        #print("{:.0f}%".format(updatedMembers / memberCount * 100))
+                        #print("Processing user {0} ({1})".format(user.name, guild.name))
+                        for reaction in reactionsList:
+                            roleFromEmoji = getRoleFromEmoji(message, reaction.emoji)
+                            reactionUsers = await reaction.users().flatten()
     
+                            uHasRole = await userHasRole(user, roleFromEmoji, guild)
+                            mInMList = memberInMemberList(user, reactionUsers)                         
+                            
+                            if mInMList and not uHasRole:
+                                await addUserToRole(user.id, roleFromEmoji, guild)
+                                print("Added user to role {0}".format(roleFromEmoji))
+                            elif uHasRole and not mInMList:
+                                await removeUserFromRole(user.id, roleFromEmoji, guild)
+                                print("Removed user from role {0}".format(roleFromEmoji))
+                        #updatedMembers += 1
+    
+        print("Server finished roleMessageSync()")
+    except Exception as e:
+        print('Exception in allServerBootSetup: {0}'.format(e))
 
 async def addUserToRole(user, roleName, guild):
     try:
