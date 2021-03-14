@@ -30,7 +30,6 @@ async def processCommand(cmdMain, cmdArgs, message):
         #'remind': cRemind,
         #'roll': cRoll,
         # 'shitpost': cShitpost,
-        #'roles': cRoles,
         'implying': cImplying,
         'setup': cSetup
     }

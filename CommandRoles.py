@@ -58,16 +58,16 @@ async def roleMessageSync():
                             mInMList = memberInMemberList(user, reactionUsers)                         
                             
                             if mInMList and not uHasRole:
-                                await addUserToRole(user.id, roleFromEmoji, guild)
-                                print("Added user to role {0}".format(roleFromEmoji))
+                                await addUserToRole(user, roleFromEmoji, guild)
+                                #print("Added user to role {0}".format(roleFromEmoji))
                             elif uHasRole and not mInMList:
-                                await removeUserFromRole(user.id, roleFromEmoji, guild)
-                                print("Removed user from role {0}".format(roleFromEmoji))
+                                await removeUserFromRole(user, roleFromEmoji, guild)
+                                #print("Removed user from role {0}".format(roleFromEmoji))
                         #updatedMembers += 1
     
         print("Server finished roleMessageSync()")
     except Exception as e:
-        print('Exception in allServerBootSetup: {0}'.format(e))
+        print('Exception in roleMessageSync: {0}'.format(e))
 
 async def addUserToRole(user, roleName, guild):
     try:
