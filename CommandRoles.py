@@ -32,59 +32,71 @@ async def modReactedRole(payload):
     if await isRoleNameValid(roleName, guild) == False:
         return
     
-    hasRoleAlready = await userHasRole(userId, roleName, guild)
+    user = await guild.fetch_member(userId)
+    hasRoleAlready = await userHasRole(user, roleName, guild)
     
     if (payload.event_type == 'REACTION_ADD') and (hasRoleAlready == False):
-        await addUserToRole(userId, roleName, guild)
+        await addUserToRole(user, roleName, guild)
     elif (payload.event_type == 'REACTION_REMOVE') and (hasRoleAlready):
-        await removeUserFromRole(userId, roleName, guild)
+        await removeUserFromRole(user, roleName, guild)
 
-async def allServerBootSetup():
-    try:
-        for dbConnection in SQI.dbConnectionList:
-            if (dbConnection.roleMsgId != 0) and (dbConnection.initialized == True):
-                guild = await ClientHolder.heldClient.fetch_guild(dbConnection.getDbConnectionGuildId())
-                channel = await ClientHolder.heldClient.fetch_channel(dbConnection.getDbConnectionRoleChannelId())
-                message = await channel.fetch_message(dbConnection.getDbConnectionRoleMsgId())
-                reactionsList = message.reactions
-                
-                # iterate over each member in the guild, check their roles vs message roles
-                users = await guild.fetch_members(limit=None).flatten()
-                for user in users:
-                    if user.id != 730947466983374900: # Remove self
-                        for reaction in reactionsList:
-                            reactionUsers = await reaction.users().flatten()
-                            uHasRole = await userHasRole(user.id, getRoleFromEmoji(message, reaction.emoji), guild)
-                            mInMList = memberInMemberList(user, reactionUsers)
-                            #if (memberInMemberList(user, reactionUsers) == True) and (await userHasRole(user.id, reaction.emoji, guild) == False):
-                            if mInMList and not uHasRole:
-                                await addUserToRole(user.id, getRoleFromEmoji(message, reaction.emoji), guild)
-                            #elif (memberInMemberList(user, reactionUsers) == False) and (await userHasRole(user.id, reaction.emoji, guild) == True):
-                            elif uHasRole and not mInMList:
-                                await removeUserFromRole(user.id, getRoleFromEmoji(message, reaction.emoji), guild)
+async def roleMessageSync():
+    # try:
+    for dbConnection in SQI.dbConnectionList:
+        if (dbConnection.roleMsgId != 0) and (dbConnection.initialized == True):
+            guild = await ClientHolder.heldClient.fetch_guild(dbConnection.getDbConnectionGuildId())
+            channel = await ClientHolder.heldClient.fetch_channel(dbConnection.getDbConnectionRoleChannelId())
+            message = await channel.fetch_message(dbConnection.getDbConnectionRoleMsgId())
+            reactionsList = message.reactions
+            
+            memberList = await guild.fetch_members(limit=None).flatten()
+            memberCount = len(memberList)
+            updatedMembers = 0
+            print("Processing guild: {0}".format(guild.name))
+            
+            # iterate over each member in the guild, check their roles vs message roles
+            users = await guild.fetch_members(limit=None).flatten()
+            for user in users:
+                if user.id != 730947466983374900: # Remove self
+                    print("{:.0f}%".format(updatedMembers / memberCount * 100))
+                    #print("Processing user {0} ({1})".format(user.name, guild.name))
+                    for reaction in reactionsList:
+                        roleFromEmoji = getRoleFromEmoji(message, reaction.emoji)
+                        reactionUsers = await reaction.users().flatten()
 
-    except Exception as e:
-        print('Exception in allServerBootSetup: {0}'.format(e))
+                        uHasRole = await userHasRole(user, roleFromEmoji, guild)
+                        mInMList = memberInMemberList(user, reactionUsers)                         
+                        
+                        if mInMList and not uHasRole:
+                            await addUserToRole(user.id, roleFromEmoji, guild)
+                            print("Added user to role {0}".format(roleFromEmoji))
+                        elif uHasRole and not mInMList:
+                            await removeUserFromRole(user.id, roleFromEmoji, guild)
+                            print("Removed user from role {0}".format(roleFromEmoji))
+                    updatedMembers += 1
+
+    print("Server finished roleMessageSync()")
+    # except Exception as e:
+    #     print('Exception in allServerBootSetup: {0}'.format(e))
     
 
-async def addUserToRole(userId, roleName, guild):
+async def addUserToRole(user, roleName, guild):
     try:
-        user = await guild.fetch_member(userId)
         guildRole= discord.utils.get(guild.roles, name = roleName)
         await user.add_roles(guildRole)
-        pass
+        print("Added {0} to {1}".format(user.name, roleName))
     except Exception as e:
-        print('Exception in \naddUserToRole(\n{0}\n{1}\n{2})'.format(userId, roleName, guild))
+        print('Exception in addUserToRole:\n\t{0}\n\t{1}\n\t{2}'.format(user.id, roleName, guild))
 
-async def removeUserFromRole(userId, roleName, guild):
+async def removeUserFromRole(user, roleName, guild):
     try:
-        user = await guild.fetch_member(userId)
         guildRole= discord.utils.get(guild.roles, name = roleName)
         await user.remove_roles(guildRole)
-        pass
+        print("Removed {0} from {1}".format(user.name, roleName))
     except Exception as e:
-        print('Exception in removeUserFromRole(\n{0}\n{1}\n{2})'.format(userId, roleName, guild))   
+        print('Exception in removeUserFromRole:\n\t{0}\n\t{1}\n\t{2}'.format(user.id, roleName, guild))   
 
+# Given the emoji name/PartialEmoji, return the name of the Role associated with it
 def getRoleFromEmoji(message, emoji):
     try:
         cleanMessage = message.clean_content
@@ -113,24 +125,13 @@ def getRoleFromEmoji(message, emoji):
         print('Exception in getRoleFromEmoji: {}'.format(e))
     
 async def isRoleNameValid(roleName, guild):
-    guildRoles = await guild.fetch_roles()
-    for r in guildRoles:
-        if r.name == roleName:
-            return True
-        
-    return False
+    guildRole = discord.utils.get(guild.roles, name=roleName)
+    return guildRole != None
     
-async def userHasRole(userId, roleName, guild):
-    user = await guild.fetch_member(userId)
-    
-    for uRole in user.roles:
-        if uRole.name == roleName:
-            return True
-    return False
+async def userHasRole(user, roleName, guild):
+    role = discord.utils.get(user.roles, name=roleName)
+    return role != None
 
 def memberInMemberList(member, memberList):
-    for m in memberList:
-        if m.id == member.id:
-            return True
-        return False
-    
+    m = discord.utils.get(memberList, id=member.id)
+    return m != None

@@ -60,8 +60,8 @@ async def on_ready():
         print('Error in beginning initialization, stopping server')
         await client.logout()
     else:
+        await cRoles.roleMessageSync()
         serverInitialized = True
-        await cRoles.allServerBootSetup()
         print('Initialization complete')
         #Debug.debug()
 
