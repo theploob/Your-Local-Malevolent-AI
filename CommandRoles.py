@@ -39,6 +39,8 @@ async def roleMessageSync():
                 message = await channel.fetch_message(dbConnection.getDbConnectionRoleMsgId())
                 reactionsList = message.reactions
                 
+
+                
                 #memberList = await guild.fetch_members(limit=None).flatten()
                 #memberCount = len(memberList)
                 #updatedMembers = 0
@@ -47,8 +49,20 @@ async def roleMessageSync():
                 # iterate over each member in the guild, check their roles vs message roles
                 users = await guild.fetch_members(limit=None).flatten()
                 for user in users:
-                    if user.id != 730947466983374900: # Remove self
-                        #print("{:.0f}%".format(updatedMembers / memberCount * 100))
+                    if user.id == 730947466983374900:
+                        allEmojiRoles = getAllRoleEmojis(message)
+                        for emoji in allEmojiRoles:
+                            pass
+                        #TODO need tp make sure the bot has reacted with every possible emoji for clarity
+                        
+                        
+                        
+                    else:  # Remove self
+                        pass
+                        #percentComplete = updatedMembers / memberCount * 100
+                        #print("\r{:.0f}%".format(percentComplete), end='')
+                        #if(percentComplete == 1):
+                        #    print("")
                         #print("Processing user {0} ({1})".format(user.name, guild.name))
                         for reaction in reactionsList:
                             roleFromEmoji = getRoleFromEmoji(message, reaction.emoji)
@@ -103,15 +117,34 @@ def getRoleFromEmoji(message, emoji):
         for p in emojiMap:
             if type(emoji) == str:
                 if p[0] == emoji:
-                    return p[1]
+                    return p[1].strip()
             elif type(emoji) == discord.PartialEmoji:
                 if p[0] == emoji.name:
-                    return p[1]
+                    return p[1].strip()
             
         return None
 
     except Exception as e:
         print('Exception in getRoleFromEmoji: {}'.format(e))
+
+# Get a list of all the emojis and their respective roles from the roleMessage
+def getAllRoleEmojis(message):
+    try:
+        cleanMessage = message.clean_content
+        regStrip = re.search('========(.*)========', cleanMessage, re.S)
+        res = regStrip.group(1)
+        lines = [x for x in res.split('\n') if x.strip()]
+        emojiList = []
+        for line in lines:
+            parts = [j for j in line.split(' : ') if j.strip()]
+            emojiList.append(parts[0])
+        if emojiList == []:
+            raise Exception
+        return emojiList
+        
+    except Exception as e:
+        print('Exception in getAllEmojiRolePairs: {}'.format(e))
+
     
 async def isRoleNameValid(roleName, guild):
     guildRole = discord.utils.get(guild.roles, name=roleName)

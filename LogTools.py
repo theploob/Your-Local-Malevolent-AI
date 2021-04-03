@@ -27,8 +27,6 @@ def Log(name, userid, chan, content):
 
     timestampStr = s[0] + '/' + s[1] + ' ' + s[2] + ':' + s[3] + ':' + s[4]
     
-    #print(timestampStr + '   ' + lt + m)
-
     # publish logs in directory ./logs/
     curDir = os.getcwd()
     logDir = curDir + '\\logs'
@@ -42,12 +40,10 @@ def Log(name, userid, chan, content):
         logfile = open(logfileName, 'a', encoding='utf-8')
         logfile.write('Started log at ' + timestampStr)
         logfile.write('''\n{0} {1} {2}({3}): \t\t\t\t\t{4}'''.format(timestampStr, chan, name, str(userid), content))
-        #logfile.write('\n' + timestampStr + ' ' + chan + ' ' + name + '(' + str(userid) + '): \t\t\t\t\t' + content)
         
     else:
         logfile = open(logfileName, 'a', encoding='utf-8')
         logfile.write('''\n{0} {1} {2}({3}): \t\t\t\t\t{4}'''.format(timestampStr, chan, name, str(userid), content))
-        #logfile.write('\n' + timestampStr + ' ' + chan + ' ' + name + '(' + str(userid) + '): \t\t\t\t\t' + content)
     
     logfile.close()
     

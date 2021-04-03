@@ -5,7 +5,10 @@ async def entry(cmdArgs, message):
     
     #checkPerms = message.author.permissions_in(message.guild)
     #TODO
-    if message.author.id != 263515295019171861:
+    # if message.author.id != 263515295019171861:
+    #     return
+    
+    if message.author.top_role.permissions == False:
         return
     
     numArgs = len(cmdArgs)

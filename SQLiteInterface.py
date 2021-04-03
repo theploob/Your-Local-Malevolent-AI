@@ -42,8 +42,6 @@ def Initialize():
             connFile.write('{}\n'.format(gd))
         connectedServerIds += guildDiff
     
-    
-    
     if len(connectedServerIds) == 0:
         return False
         
@@ -132,7 +130,7 @@ class DbConnection:
     def initConnection(self):
         try:
             os.chdir('sqliteDatabases')
-            self.sqlConnection = sqlite3.connect(self.sqlConnectionId + '.db')
+            self.sqlConnection = sqlite3.connect(str(self.sqlConnectionId) + '.db')
             self.initialized = (self.sqlConnection != None)
             os.chdir('../')
             

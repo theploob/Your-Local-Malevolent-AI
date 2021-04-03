@@ -42,7 +42,6 @@ def init():
     err = False
     err |= ClientHolderInit(client)
     err |= SQI.Initialize()
-
     return err
 
 @client.event
@@ -62,8 +61,6 @@ async def on_ready():
 async def on_message(message):
     if serverInitialized == False:
         return
-    
-    LT.Log(message.author.nick, message.author.id, message.channel.name, message.content)
     
     # Ignore self posts
     if message.author.id == client.user.id:
