@@ -130,7 +130,7 @@ async def on_guild_join(guild):
 async def on_guild_remove(guild):
     if serverInitialized == False:
         return
-    SQI.removeServerDatabase(guild)
+    await SQI.removeServerDatabase(guild)
     LT.Log(guild.name, guild.id, "System", "Guild left the botnet")
 
 client.run(GetToken.get())

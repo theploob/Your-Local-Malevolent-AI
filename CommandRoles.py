@@ -3,6 +3,8 @@ import discord
 import re
 import ClientHolder
 import SQLiteInterface as SQI
+import collections
+import inspect
 
 async def entry(cmdArgs, message):
     pass
@@ -16,18 +18,18 @@ async def modReactedRole(payload):
     message = await channel.fetch_message(payload.message_id)
 
     roleName = getRoleFromEmoji(message, emoji)
-    if roleName == None:
+    if roleName is None:
         return
     
-    if await isRoleNameValid(roleName, guild) == False:
+    if not await isRoleNameValid(roleName, guild):
         return
     
     user = await guild.fetch_member(userId)
     hasRoleAlready = await userHasRole(user, roleName, guild)
     
-    if (payload.event_type == 'REACTION_ADD') and (hasRoleAlready == False):
+    if (payload.event_type == 'REACTION_ADD') and (hasRoleAlready is False):
         await addUserToRole(user, roleName, guild)
-    elif (payload.event_type == 'REACTION_REMOVE') and (hasRoleAlready):
+    elif (payload.event_type == 'REACTION_REMOVE') and hasRoleAlready:
         await removeUserFromRole(user, roleName, guild)
 
 async def roleMessageSync():
@@ -38,47 +40,48 @@ async def roleMessageSync():
                 channel = await ClientHolder.heldClient.fetch_channel(dbConnection.getDbConnectionRoleChannelId())
                 message = await channel.fetch_message(dbConnection.getDbConnectionRoleMsgId())
                 reactionsList = message.reactions
-                
+                guildMembers = await guild.fetch_members(limit=None).flatten()
 
-                
-                #memberList = await guild.fetch_members(limit=None).flatten()
-                #memberCount = len(memberList)
-                #updatedMembers = 0
                 print("Processing guild: {0}".format(guild.name))
+
+                # Make sure the bot has reacted with every possible emoji
+                rList = getAllRoleEmojis(message)
+                for r in rList:
+                    await message.add_reaction(r)
+
+                #Construct the role + member hash tables
+                roleHashTable = {}
+                for reaction in reactionsList:
+                    roleFromEmoji = getRoleFromEmoji(message, reaction.emoji)
+                    roleHashTable.update({roleFromEmoji : set()})
+                    for m in guildMembers:
+                        if discord.utils.get(guild.roles, name=roleFromEmoji) in m.roles:
+                            roleHashTable[roleFromEmoji].add(m)
                 
-                # iterate over each member in the guild, check their roles vs message roles
-                users = await guild.fetch_members(limit=None).flatten()
-                for user in users:
-                    if user.id == 730947466983374900:
-                        allEmojiRoles = getAllRoleEmojis(message)
-                        for emoji in allEmojiRoles:
-                            pass
-                        #TODO need tp make sure the bot has reacted with every possible emoji for clarity
-                        
-                        
-                        
-                    else:  # Remove self
-                        pass
-                        #percentComplete = updatedMembers / memberCount * 100
-                        #print("\r{:.0f}%".format(percentComplete), end='')
-                        #if(percentComplete == 1):
-                        #    print("")
-                        #print("Processing user {0} ({1})".format(user.name, guild.name))
-                        for reaction in reactionsList:
-                            roleFromEmoji = getRoleFromEmoji(message, reaction.emoji)
-                            reactionUsers = await reaction.users().flatten()
-    
-                            uHasRole = await userHasRole(user, roleFromEmoji, guild)
-                            mInMList = memberInMemberList(user, reactionUsers)                         
-                            
-                            if mInMList and not uHasRole:
-                                await addUserToRole(user, roleFromEmoji, guild)
-                                #print("Added user to role {0}".format(roleFromEmoji))
-                            elif uHasRole and not mInMList:
-                                await removeUserFromRole(user, roleFromEmoji, guild)
-                                #print("Removed user from role {0}".format(roleFromEmoji))
-                        #updatedMembers += 1
-    
+                # Go over each reaction to the message
+                for reaction in reactionsList:
+                    roleFromEmoji = getRoleFromEmoji(message, reaction.emoji)
+                    reactionUsers = await reaction.users().flatten()
+                    invalidReactionUsers = []
+                    for ru in reactionUsers:
+                        if isinstance(ru, discord.User) or ru.id == 730947466983374900: # Remove self from update list
+                            # TODO Remove reaction or process somehow
+                            invalidReactionUsers.append(ru)
+
+                    for iru in invalidReactionUsers:
+                        reactionUsers.remove(iru)
+                    
+                    # Go over each member who has reacted with the specific reaction
+                    for reactor in reactionUsers:
+                        uHasRole = await userHasRole(reactor, roleFromEmoji, guild)
+                        if uHasRole == False:
+                            await addUserToRole(reactor, roleFromEmoji, guild)
+
+                    roleMembersFromHash = roleHashTable[roleFromEmoji]
+                    for roleMember in roleMembersFromHash:
+                        if roleMember not in reactionUsers:
+                            await removeUserFromRole(roleMember, roleFromEmoji, guild)
+
         print("Server finished roleMessageSync()")
     except Exception as e:
         print('Exception in roleMessageSync: {0}'.format(e))

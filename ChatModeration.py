@@ -6,8 +6,10 @@ CMOD_MSG_ER = 1
 
 async def moderateMessage(message):
 
+    messageContent = message.clean_content_lower()
+
     for w in bannedWordList:
-        if w in message.content:
+        if w in messageContent:
             await message.delete()
             return CMOD_MSG_ER
     

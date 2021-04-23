@@ -25,6 +25,9 @@ async def entry(cmdArgs, message):
                 roleChannel = roleChannels[0]
                 
             channelMessages = await roleChannel.history(limit=100).flatten()
+            reRes = None
+            reactionMessageId = None
+            reacionMessageChannel = None
             for cMsg in channelMessages:
                 cCMsg = cMsg.clean_content
                 reRes = re.search('========(.*)========', cCMsg, re.S)
