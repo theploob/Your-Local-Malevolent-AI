@@ -1,6 +1,5 @@
 import sqlite3
 import os
-from pathlib import Path
 from ClientHolder import getGuildList
 
 # Master list of all DbConnections, one for each SQLite database/server
@@ -52,7 +51,7 @@ def Initialize():
         dCL.initConnection()
         
     for dCL in dbConnectionList:
-        if dCL.initialized == False:
+        if not dCL.initialized:
             print("Connection {} wasn't initialized".format(dCL.sqlConnectionId))
 
     return err
@@ -142,16 +141,12 @@ class DbConnection:
                 pass
             elif count == 0:
                 c.execute(''' CREATE TABLE rolemessage (messageid integer, channelid integer) ''')
-            else:
-                raise MultipleTable
             
             self.roleMsgId = self.getRoleMessageId()
             self.roleChannelId = self.getRoleChannelId()
         except Exception as exc:
             print('Exception in initConnection ({0}): {1}'.format(self.sqlConnectionId, exc))
-    
-        except MultipleTable as exc:
-            print("Exception in initConnection: Multiple Tables exist, can't initialize")
+
 
     def getDbConnectionGuildId(self):
         return self.sqlConnectionId

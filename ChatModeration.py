@@ -1,12 +1,11 @@
 from ContentControl import bannedWordList
-import Constants as C
 
 CMOD_MSG_OK = 0
 CMOD_MSG_ER = 1
 
 async def moderateMessage(message):
 
-    messageContent = message.clean_content_lower()
+    messageContent = message.clean_content.lower()
 
     for w in bannedWordList:
         if w in messageContent:

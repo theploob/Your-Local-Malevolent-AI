@@ -1,25 +1,23 @@
 import discord
-
+import threading
 import GetToken
-import CommandRemind as cRemind
-import CommandRoll as cRoll
 import CommandImplying as cImplying
 import CommandRoles as cRoles
 import CommandSetup as cSetup
-
+import Gregorian
 import LogTools as LT
 import Constants as C
+import ServerTimer
 import SQLiteInterface as SQI
-import Debug
 from ClientHolder import ClientHolderInit
 import ChatModeration
 
+serverInitialized = False
 intents = discord.Intents.default()
 intents.members = True
 intents.reactions = True
-client = discord.Client(intents = intents)
+client = discord.Client(intents=intents)
 
-serverInitialized = False
 
 # Process the given command with parameters
 async def processCommand(cmdMain, cmdArgs, message):
@@ -27,8 +25,8 @@ async def processCommand(cmdMain, cmdArgs, message):
     switch = {
         # 'tag': cTag,
         # 'timeout': cTimeout,
-        #'remind': cRemind,
-        #'roll': cRoll,
+        # 'remind': cRemind,
+        # 'roll': cRoll,
         # 'shitpost': cShitpost,
         'implying': cImplying,
         'setup': cSetup
@@ -55,7 +53,8 @@ async def on_ready():
         await cRoles.roleMessageSync()
         serverInitialized = True
         print('Initialization complete')
-        #Debug.debug()
+        await Gregorian.update() # Update Revol's name to Greg or Ian, day-dependant
+        # Debug.debug()
 
 @client.event
 async def on_message(message):
@@ -67,7 +66,7 @@ async def on_message(message):
         return
     
     # Moderate message, return and don't continue if things don't check out
-    if (await ChatModeration.moderateMessage(message) != ChatModeration.CMOD_MSG_OK):
+    if await ChatModeration.moderateMessage(message) != ChatModeration.CMOD_MSG_OK:
         LT.Log(message.author.name, message.author.id, "System", "User's message was auto-filtered")
         return
 
@@ -78,7 +77,7 @@ async def on_message(message):
         uNick = message.author.nick
         uName = message.author.name
         uId = message.author.id
-        if uNick == None:
+        if uNick is None:
             print('{0} ({1}) gave command {2}'.format(uName, uId, str(cmdStr)))
         else:
             print('{3} ({0}) ({1}) gave command {2}'.format(uName, uId, str(cmdStr), uNick))            
@@ -109,28 +108,54 @@ async def on_raw_reaction_remove(payload):
        
 @client.event
 async def on_member_join(member):
-    if serverInitialized == False:
+    if not serverInitialized:
         return
     LT.Log(member.name, member.id, "System", "User joined the server")
     
 @client.event
 async def on_member_remove(member):
-    if serverInitialized == False:
+    if not serverInitialized:
         return
     LT.Log(member.name, member.id, "System", "User left the server")
 
 @client.event
 async def on_guild_join(guild):
-    if serverInitialized == False:
+    if not serverInitialized:
         return
     await SQI.addNewServerDatabase(guild)
     LT.Log(guild.name, guild.id, "System", "Guild joined the botnet")
 
 @client.event
 async def on_guild_remove(guild):
-    if serverInitialized == False:
+    if not serverInitialized:
         return
     await SQI.removeServerDatabase(guild)
     LT.Log(guild.name, guild.id, "System", "Guild left the botnet")
 
-client.run(GetToken.get())
+
+class aThread (threading.Thread):
+    def __init__(self, threadID, name, function):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.function = function
+
+    def run(self):
+        global client
+        print("Starting {} Thread".format(self.name))
+        self.function(self.name)
+
+
+def run_server(thread_name):
+    client.run(serverToken)
+
+
+serverToken = GetToken.get()
+# client.run(GetToken.get())
+
+thread1 = aThread(1, "Main", run_server)
+thread2 = aThread(2, "Timer", ServerTimer.start_timer)
+
+# Start new Threads
+thread1.start()
+thread2.start()

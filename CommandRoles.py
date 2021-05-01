@@ -1,10 +1,7 @@
-import Constants as C
 import discord
 import re
 import ClientHolder
 import SQLiteInterface as SQI
-import collections
-import inspect
 
 async def entry(cmdArgs, message):
     pass
@@ -35,7 +32,7 @@ async def modReactedRole(payload):
 async def roleMessageSync():
     try:
         for dbConnection in SQI.dbConnectionList:
-            if (dbConnection.roleMsgId != 0) and (dbConnection.initialized == True):
+            if (dbConnection.roleMsgId != 0) and (dbConnection.initialized is True):
                 guild = await ClientHolder.heldClient.fetch_guild(dbConnection.getDbConnectionGuildId())
                 channel = await ClientHolder.heldClient.fetch_channel(dbConnection.getDbConnectionRoleChannelId())
                 message = await channel.fetch_message(dbConnection.getDbConnectionRoleMsgId())
@@ -49,7 +46,7 @@ async def roleMessageSync():
                 for r in rList:
                     await message.add_reaction(r)
 
-                #Construct the role + member hash tables
+                # Construct the role + member hash tables
                 roleHashTable = {}
                 for reaction in reactionsList:
                     roleFromEmoji = getRoleFromEmoji(message, reaction.emoji)
@@ -57,7 +54,7 @@ async def roleMessageSync():
                     for m in guildMembers:
                         if discord.utils.get(guild.roles, name=roleFromEmoji) in m.roles:
                             roleHashTable[roleFromEmoji].add(m)
-                
+
                 # Go over each reaction to the message
                 for reaction in reactionsList:
                     roleFromEmoji = getRoleFromEmoji(message, reaction.emoji)
@@ -70,7 +67,7 @@ async def roleMessageSync():
 
                     for iru in invalidReactionUsers:
                         reactionUsers.remove(iru)
-                    
+
                     # Go over each member who has reacted with the specific reaction
                     for reactor in reactionUsers:
                         uHasRole = await userHasRole(reactor, roleFromEmoji, guild)
@@ -88,7 +85,7 @@ async def roleMessageSync():
 
 async def addUserToRole(user, roleName, guild):
     try:
-        guildRole= discord.utils.get(guild.roles, name = roleName)
+        guildRole = discord.utils.get(guild.roles, name=roleName)
         await user.add_roles(guildRole)
         print("Added {0} to {1}".format(user.name, roleName))
     except Exception as e:
@@ -96,7 +93,7 @@ async def addUserToRole(user, roleName, guild):
 
 async def removeUserFromRole(user, roleName, guild):
     try:
-        guildRole= discord.utils.get(guild.roles, name = roleName)
+        guildRole = discord.utils.get(guild.roles, name=roleName)
         await user.remove_roles(guildRole)
         print("Removed {0} from {1}".format(user.name, roleName))
     except Exception as e:

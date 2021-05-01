@@ -2,7 +2,7 @@ from CommandRemind import addArr
 from CommandRemind import addDateTimes
 from threading import Timer
 from threading import Event
-import ReminderTimer
+import ServerTimer
 import time
 from ClientHolder import getGuildList
 
