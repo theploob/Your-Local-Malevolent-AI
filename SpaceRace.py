@@ -11,6 +11,7 @@ import ServerTimer
 import SQLiteInterface as SQI
 from ClientHolder import ClientHolderInit
 import ChatModeration
+import Debug
 
 serverInitialized = False
 intents = discord.Intents.default()
@@ -50,11 +51,12 @@ async def on_ready():
         print('Error in beginning initialization, stopping server')
         await client.logout()
     else:
+
         await cRoles.roleMessageSync()
         serverInitialized = True
         print('Initialization complete')
         await Gregorian.update() # Update Revol's name to Greg or Ian, day-dependant
-        # Debug.debug()
+        # await Debug.debug()
 
 @client.event
 async def on_message(message):
@@ -77,17 +79,19 @@ async def on_message(message):
         uNick = message.author.nick
         uName = message.author.name
         uId = message.author.id
-        if uNick is None:
-            print('{0} ({1}) gave command {2}'.format(uName, uId, str(cmdStr)))
-        else:
-            print('{3} ({0}) ({1}) gave command {2}'.format(uName, uId, str(cmdStr), uNick))            
+
 
         cmdTok = [x for x in cmdStr.split(' ') if x.strip()] # Tokenize
         cmdMain = cmdTok[0].lower()
         cmdArgs = cmdTok[1:]
         
         if cmdMain in C.commandList:
+            if uNick is None:
+                print('{0} ({1}) gave command {2}'.format(uName, uId, str(cmdStr)))
+            else:
+                print('{3} ({0}) ({1}) gave command {2}'.format(uName, uId, str(cmdStr), uNick))
             await processCommand(cmdMain.lower(), cmdArgs, message)
+
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -153,7 +157,7 @@ def run_server(thread_name):
 serverToken = GetToken.get()
 # client.run(GetToken.get())
 
-thread1 = aThread(1, "Main", run_server)
+thread1 = aThread(1, "Client", run_server)
 thread2 = aThread(2, "Timer", ServerTimer.start_timer)
 
 # Start new Threads

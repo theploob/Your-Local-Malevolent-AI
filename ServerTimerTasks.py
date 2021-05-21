@@ -4,7 +4,8 @@ import Gregorian
 
 
 def run_tasks_minute():
-    print('Running by-minute tasks')
+    if not __debug__:
+        print('Running by-minute tasks')
     server_tasks = [Gregorian.run_as_task()]
     for st in server_tasks:
         st_thread = ServerTaskThread(st)
@@ -14,13 +15,25 @@ def run_tasks_minute():
 
 
 def run_tasks_hour():
-    print('Running by-hour tasks')
-    pass
+    if not __debug__:
+        print('Running by-hour tasks')
+    server_tasks = []
+    for st in server_tasks:
+        st_thread = ServerTaskThread(st)
+        st_thread.start()
+        while st_thread.is_alive():
+            pass
 
 
 def run_tasks_day():
-    print('Running by-day tasks')
-    pass
+    if not __debug__:
+        print('Running by-hour tasks')
+    server_tasks = []
+    for st in server_tasks:
+        st_thread = ServerTaskThread(st)
+        st_thread.start()
+        while st_thread.is_alive():
+            pass
 
 
 class ServerTaskThread(threading.Thread):

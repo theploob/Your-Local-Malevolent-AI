@@ -3,7 +3,7 @@ import time
 import ClientHolder
 
 name_prefix = "Cyber "
-name_array = ["Ian", "Greg", "Ian", "Greg", "Ian", "Greg", "Greg"]
+name_array = ["Greg", "Ian", "Greg", "Ian", "Greg", "Ian", "Greg"]
 
 
 async def update():

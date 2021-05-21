@@ -4,7 +4,7 @@ from threading import Timer
 from threading import Event
 import ServerTimer
 import time
-from ClientHolder import getGuildList
+import ClientHolder
 
 
 def expect(func, result, tag):
@@ -32,11 +32,10 @@ tests = [
     expect(addArr([],[]),[],"addArr")
 ]
 
-def debug():
-    #print(getGuildList())
-
-    
-    pass
+async def debug():
+    client = ClientHolder.GetClient()
+    c = await client.fetch_channel(507329198852145182)
+    await c.send("I see you've taken an interest in me")
 
 def testListRun():   
     for i, t in enumerate(tests):
