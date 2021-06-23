@@ -11,7 +11,7 @@ import ServerTimer
 import SQLiteInterface as SQI
 from ClientHolder import ClientHolderInit
 import ChatModeration
-import Debug
+# import Debug
 
 serverInitialized = False
 intents = discord.Intents.default()
@@ -51,7 +51,6 @@ async def on_ready():
         print('Error in beginning initialization, stopping server')
         await client.logout()
     else:
-
         await cRoles.roleMessageSync()
         serverInitialized = True
         print('Initialization complete')

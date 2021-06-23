@@ -34,8 +34,14 @@ tests = [
 
 async def debug():
     client = ClientHolder.GetClient()
-    c = await client.fetch_channel(507329198852145182)
-    await c.send("I see you've taken an interest in me")
+    c = await client.fetch_channel(432335036034056225)
+    m = await c.fetch_message(839292972809060413)
+    embs = m.embeds[0]
+
+
+
+    print('Got message')
+
 
 def testListRun():   
     for i, t in enumerate(tests):
