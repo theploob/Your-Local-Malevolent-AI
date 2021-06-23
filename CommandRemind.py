@@ -75,7 +75,7 @@ def validate_command(args):
         if time_is_after(time_arg[:-1], [ct.hour, ct.minute]):
             return [True, create_reminder(current_datetime[0:3] + time_arg[:-1], msg_arg)]
         else:
-            new_date = add_date_args(current_datetime[0:3] + [0, 1, 0])
+            new_date = add_date_args(current_datetime[0:3], [0, 1, 0])
             return [True, create_reminder(new_date + time_arg[:-1], msg_arg)]
 
     else:  # No command type, just set a timer for the given duration
@@ -159,11 +159,13 @@ def split_date_arg(arg):
     if len(split_arg) != 3:
         return [0, 0, 0, True]
     else:
-        return [int(split_arg[0]), int(split_arg[1]), int(split_arg)[2], False]
+        return [int(split_arg[0]), int(split_arg[1]), int(split_arg[2]), False]
 
 
 # Check that the given time, in int format, is a valid time
-def is_valid_time(h, m):
+def is_valid_time(v):
+    h = v[0]
+    m = v[0]
     if h > 23 or h < 0:
         return False
     if m > 59 or m < 0:
@@ -172,7 +174,10 @@ def is_valid_time(h, m):
 
 
 # Check that the given date, in int format, is a valid date
-def is_valid_date(m, d, y):
+def is_valid_date(v):
+    m = v[0]
+    d = v[1]
+    y = v[2]
     if m > 12 or m < 1:
         return False
     if d < 1:
